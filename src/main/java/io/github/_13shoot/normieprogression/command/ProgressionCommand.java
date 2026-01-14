@@ -1,10 +1,9 @@
 package io.github._13shoot.normieprogression.command;
 
-import io.github._13shoot.normieprogression.NormieProgression;
+import io.github._13shoot.normieprogression.gate.GateRegistry;
 import io.github._13shoot.normieprogression.gate.GateService;
 import io.github._13shoot.normieprogression.tier.Tier;
 import io.github._13shoot.normieprogression.tier.TierManager;
-import io.github._13shoot.normieprogression.tier.TierService;
 import io.github._13shoot.normieprogression.visibility.VisibilityData;
 import io.github._13shoot.normieprogression.visibility.VisibilityManager;
 import org.bukkit.Bukkit;
@@ -13,195 +12,184 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
+import java.util.UUID;
+
 public class ProgressionCommand implements CommandExecutor {
 
     @Override
-    public boolean onCommand(
-            CommandSender sender,
-            Command command,
-            String label,
-            String[] args
-    ) {
+    public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
 
-        if (!(sender instanceof Player admin)) {
-            sender.sendMessage("Player only.");
+        if (!sender.isOp()) {
+            sender.sendMessage("§cAdmin only.");
             return true;
         }
 
-        if (!admin.isOp()) {
-            admin.sendMessage("§cAdmin only.");
-            return true;
-        }
-
-        if (args.length == 0) {
-            sendUsage(admin);
+        if (args.length < 1) {
+            sendHelp(sender);
             return true;
         }
 
         switch (args[0].toLowerCase()) {
-            case "tier" -> handleTier(admin, args);
-            case "debug" -> handleDebug(admin, args);
-            case "gate" -> handleGate(admin, args);
-            case "save" -> handleSave(admin);
-            case "reload" -> handleReload(admin);
-            default -> sendUsage(admin);
+
+            case "gate" -> handleGate(sender, args);
+            case "visibility" -> handleVisibility(sender, args);
+            case "tier" -> handleTier(sender, args);
+            case "reset" -> handleReset(sender, args);
+            case "debug" -> handleDebug(sender, args);
+            default -> sendHelp(sender);
         }
 
         return true;
     }
 
-    /* ------------------------------------------------
-     * /np tier ...
-     * ------------------------------------------------ */
-    private void handleTier(Player admin, String[] args) {
+    private void handleGate(CommandSender sender, String[] args) {
 
-        if (args.length == 1) {
-            Tier tier = TierManager.getTier(admin.getUniqueId());
-            admin.sendMessage("§7Your Tier: §e" + tier.name());
-            return;
-        }
-
-        // /np tier set <player> <0-4>
-        if (args.length == 4 && args[1].equalsIgnoreCase("set")) {
-
-            Player target = Bukkit.getPlayer(args[2]);
-            if (target == null) {
-                admin.sendMessage("§cPlayer not found.");
-                return;
-            }
-
-            try {
-                int number = Integer.parseInt(args[3]);
-                Tier tier = Tier.fromNumber(number);
-                TierManager.forceSet(target.getUniqueId(), tier);
-
-                admin.sendMessage("§aSet tier of " + target.getName()
-                        + " to " + tier.name());
-            } catch (NumberFormatException e) {
-                admin.sendMessage("§cTier must be a number (0–4).");
-            }
-            return;
-        }
-
-        // /np tier reset <player>
-        if (args.length == 3 && args[1].equalsIgnoreCase("reset")) {
-
-            Player target = Bukkit.getPlayer(args[2]);
-            if (target == null) {
-                admin.sendMessage("§cPlayer not found.");
-                return;
-            }
-
-            TierManager.forceSet(target.getUniqueId(), Tier.T0_UNSEEN);
-            admin.sendMessage("§eReset tier of " + target.getName());
-            return;
-        }
-
-        sendUsage(admin);
-    }
-
-    /* ------------------------------------------------
-     * /np debug <player>
-     * ------------------------------------------------ */
-    private void handleDebug(Player admin, String[] args) {
-
-        if (args.length != 2) {
-            sendUsage(admin);
-            return;
-        }
-
-        Player target = Bukkit.getPlayer(args[1]);
-        if (target == null) {
-            admin.sendMessage("§cPlayer not found.");
-            return;
-        }
-
-        VisibilityData vData =
-                VisibilityManager.get(target.getUniqueId());
-
-        Tier tier =
-                TierManager.getTier(target.getUniqueId());
-
-        double eco =
-                TierService.getEconomicMultiplier(target);
-
-        int visBonus =
-                TierService.getVisibilityBonus(target);
-
-        admin.sendMessage("§6=== Progression Debug ===");
-        admin.sendMessage("§7Player: §f" + target.getName());
-        admin.sendMessage("§7Days Alive: §f" +
-                (vData != null ? vData.getDaysAlive() : 0));
-        admin.sendMessage("§7Visibility (raw): §f" +
-                VisibilityManager.getVisibility(target.getUniqueId()));
-        admin.sendMessage("§7Tier: §e" + tier.name());
-        admin.sendMessage("§7Eco Mult: §a" + eco);
-        admin.sendMessage("§7Visibility Bonus: §b+" + visBonus);
-        admin.sendMessage("§7Visibility (days): §f" + vData.getVisibilityDays());
-        admin.sendMessage("§7Visibility (economy): §f" + vData.getVisibilityEconomy());
-        admin.sendMessage("§7Visibility (total): §e" + (vData.getVisibilityDays() + vData.getVisibilityEconomy()));
-    }
-
-    /* ------------------------------------------------
-     * /np gate eval <player>
-     * ------------------------------------------------ */
-    private void handleGate(Player admin, String[] args) {
-
-        if (args.length != 3 || !args[1].equalsIgnoreCase("eval")) {
-            sendUsage(admin);
+        if (args.length < 3) {
+            sender.sendMessage("§cUsage: /np gate <eval|debug> <player>");
             return;
         }
 
         Player target = Bukkit.getPlayer(args[2]);
         if (target == null) {
-            admin.sendMessage("§cPlayer not found.");
+            sender.sendMessage("§cPlayer not found.");
             return;
         }
 
-        GateService.evaluate(target);
-        admin.sendMessage("§aGate evaluation triggered for "
-                + target.getName());
-    }
+        if (args[1].equalsIgnoreCase("eval")) {
+            GateService.evaluate(target);
+            sender.sendMessage("§aGate evaluation triggered for " + target.getName());
+            return;
+        }
 
-    /* ------------------------------------------------
-     * /np save
-     * ------------------------------------------------ */
-    private void handleSave(Player admin) {
+        if (args[1].equalsIgnoreCase("debug")) {
 
-        NormieProgression plugin =
-                (NormieProgression) Bukkit.getPluginManager()
-                        .getPlugin("NormieProgression");
+            sender.sendMessage("§e=== Gate Debug ===");
+            sender.sendMessage("Player: " + target.getName());
 
-        if (plugin != null) {
-            plugin.forceSave();
-            admin.sendMessage("§aProgression data saved.");
+            GateRegistry.getAll().forEach(gate -> {
+                boolean pass = gate.check(target);
+                sender.sendMessage("- " + gate.getId() + ": " + (pass ? "§aPASS" : "§cFAIL"));
+            });
         }
     }
 
-    /* ------------------------------------------------
-     * /np reload
-     * ------------------------------------------------ */
-    private void handleReload(Player admin) {
+    private void handleVisibility(CommandSender sender, String[] args) {
 
-        NormieProgression plugin =
-                (NormieProgression) Bukkit.getPluginManager()
-                        .getPlugin("NormieProgression");
+        if (args.length < 3) {
+            sender.sendMessage("§cUsage: /np visibility <set|add|reset> <player> [amount]");
+            return;
+        }
 
-        if (plugin != null) {
-            plugin.forceSave();
-            plugin.forceLoad();
-            admin.sendMessage("§aProgression data reloaded.");
+        Player target = Bukkit.getPlayer(args[2]);
+        if (target == null) {
+            sender.sendMessage("§cPlayer not found.");
+            return;
+        }
+
+        UUID id = target.getUniqueId();
+        VisibilityData data = VisibilityManager.getOrCreate(id);
+
+        switch (args[1].toLowerCase()) {
+
+            case "reset" -> {
+                data.decayOnDeath(0.0, 0.0);
+                sender.sendMessage("§aVisibility reset for " + target.getName());
+            }
+
+            case "add" -> {
+                int amt = Integer.parseInt(args[3]);
+                VisibilityManager.addEconomyVisibility(id, amt);
+                sender.sendMessage("§aAdded visibility to " + target.getName());
+            }
+
+            case "set" -> {
+                int total = Integer.parseInt(args[3]);
+                data.decayOnDeath(0.0, 0.0);
+                VisibilityManager.addEconomyVisibility(id, total);
+                sender.sendMessage("§aVisibility set for " + target.getName());
+            }
         }
     }
 
-    private void sendUsage(Player player) {
-        player.sendMessage("§6=== Normie Progression Admin ===");
-        player.sendMessage("§7/np tier");
-        player.sendMessage("§7/np tier set <player> <0-4>");
-        player.sendMessage("§7/np tier reset <player>");
-        player.sendMessage("§7/np debug <player>");
-        player.sendMessage("§7/np gate eval <player>");
-        player.sendMessage("§7/np save");
-        player.sendMessage("§7/np reload");
+    private void handleTier(CommandSender sender, String[] args) {
+
+        if (args.length < 4) {
+            sender.sendMessage("§cUsage: /np tier <set|reset> <player> <level>");
+            return;
+        }
+
+        Player target = Bukkit.getPlayer(args[2]);
+        if (target == null) {
+            sender.sendMessage("§cPlayer not found.");
+            return;
+        }
+
+        if (args[1].equalsIgnoreCase("reset")) {
+            TierManager.forceSet(target.getUniqueId(), Tier.T0_UNSEEN);
+            sender.sendMessage("§aTier reset.");
+            return;
+        }
+
+        int level = Integer.parseInt(args[3]);
+        Tier tier = Tier.fromNumber(level);
+        TierManager.forceSet(target.getUniqueId(), tier);
+        sender.sendMessage("§aTier set to " + tier.name());
+    }
+
+    private void handleReset(CommandSender sender, String[] args) {
+
+        if (args.length < 2) {
+            sender.sendMessage("§cUsage: /np reset <player>");
+            return;
+        }
+
+        Player target = Bukkit.getPlayer(args[1]);
+        if (target == null) {
+            sender.sendMessage("§cPlayer not found.");
+            return;
+        }
+
+        UUID id = target.getUniqueId();
+
+        TierManager.forceSet(id, Tier.T0_UNSEEN);
+
+        VisibilityData data = VisibilityManager.getOrCreate(id);
+        data.decayOnDeath(0.0, 0.0);
+
+        sender.sendMessage("§aProgression fully reset for " + target.getName());
+    }
+
+    private void handleDebug(CommandSender sender, String[] args) {
+
+        if (args.length < 2) {
+            sender.sendMessage("§cUsage: /np debug <player>");
+            return;
+        }
+
+        Player target = Bukkit.getPlayer(args[1]);
+        if (target == null) {
+            sender.sendMessage("§cPlayer not found.");
+            return;
+        }
+
+        VisibilityData v = VisibilityManager.get(target.getUniqueId());
+
+        sender.sendMessage("§e=== Progression Debug ===");
+        sender.sendMessage("Player: " + target.getName());
+        sender.sendMessage("Days Alive: " + v.getDaysAlive());
+        sender.sendMessage("Visibility (days): " + v.getVisibilityDays());
+        sender.sendMessage("Visibility (economy): " + v.getVisibilityEconomy());
+        sender.sendMessage("Visibility (total): " + v.getTotalVisibility());
+        sender.sendMessage("Tier: " + TierManager.getTier(target.getUniqueId()));
+    }
+
+    private void sendHelp(CommandSender sender) {
+        sender.sendMessage("§e=== Normie Progression Admin ===");
+        sender.sendMessage("/np gate eval <player>");
+        sender.sendMessage("/np gate debug <player>");
+        sender.sendMessage("/np visibility set|add|reset <player> <amount>");
+        sender.sendMessage("/np tier set|reset <player> <level>");
+        sender.sendMessage("/np reset <player>");
+        sender.sendMessage("/np debug <player>");
     }
 }
