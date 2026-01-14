@@ -4,7 +4,7 @@ public class VisibilityData {
 
     private int daysAlive;
 
-    // NEW: source attribution
+    // source attribution
     private int visibilityDays;
     private int visibilityEconomy;
 
@@ -22,7 +22,6 @@ public class VisibilityData {
 
     public void incrementDaysAlive() {
         this.daysAlive++;
-        // days contribute visibility (1:1 for now)
         this.visibilityDays++;
     }
 
@@ -49,12 +48,15 @@ public class VisibilityData {
         return visibilityDays + visibilityEconomy;
     }
 
-    /* ---------------- Decay hooks (used later) ---------------- */
+    /* ---------------- Decay on Death ---------------- */
 
-    // called on death in Step 2
     public void decayOnDeath(double daysFactor, double economyFactor) {
+
+        // days: small decay
         this.visibilityDays =
                 Math.max(0, (int) Math.floor(this.visibilityDays * daysFactor));
+
+        // economy: stronger decay
         this.visibilityEconomy =
                 Math.max(0, (int) Math.floor(this.visibilityEconomy * economyFactor));
     }
