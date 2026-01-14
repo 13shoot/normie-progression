@@ -42,7 +42,12 @@ public class EconomyBalanceTracker {
 
             if (current > previous) {
                 double earned = current - previous;
-                VaultEconomyHook.recordDeposit(player, earned);
+
+                // ✅ NEW FLOW (v0.2.3)
+                VisibilityData data =
+                        VisibilityManager.getOrCreate(id);
+
+                VaultEconomyHook.onMoneyEarned(data, earned);
             }
 
             lastBalance.put(id, current);
