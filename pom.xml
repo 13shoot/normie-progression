@@ -38,6 +38,12 @@
             <url>https://repo.extendedclip.com/content/repositories/placeholderapi/</url>
         </repository>
 
+        <!-- Jitpack Repository -->
+        <repository>
+            <id>jitpack.io</id>
+            <url>https://jitpack.io</url>
+        </repository>
+
     </repositories>
 
     <!-- ================================================= -->
@@ -64,8 +70,8 @@
          <!-- Vault API -->
         <dependency>
             <groupId>com.github.MilkBowl</groupId>
-            <artifactId>VaultAPI</artifactId>
-            <version>1.7</version>
+            <artifactId>Vault</artifactId>
+            <version>1.7.3</version>
             <scope>provided</scope>
         </dependency>
 
