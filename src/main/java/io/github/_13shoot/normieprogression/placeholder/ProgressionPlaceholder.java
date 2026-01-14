@@ -1,5 +1,6 @@
 package io.github._13shoot.normieprogression.placeholder;
 
+import io.github._13shoot.normieprogression.visibility.VisibilityService;
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -14,7 +15,8 @@ public class ProgressionPlaceholder extends PlaceholderExpansion {
 
     @Override
     public String getIdentifier() {
-        // CHANGE HERE: no underscore
+        // IMPORTANT:
+        // Do NOT use underscore (_) here
         // %normieprogression_visibility%
         return "normieprogression";
     }
@@ -31,7 +33,7 @@ public class ProgressionPlaceholder extends PlaceholderExpansion {
 
     @Override
     public String getPlugin() {
-        // REQUIRED for PlaceholderAPI 2.11.x internal expansion
+        // Required for PlaceholderAPI 2.11.x internal expansion
         return plugin.getName();
     }
 
@@ -47,10 +49,28 @@ public class ProgressionPlaceholder extends PlaceholderExpansion {
             return "";
         }
 
+        // ----------------------------------------
+        // Visibility placeholder
+        // ----------------------------------------
         if (params.equalsIgnoreCase("visibility")) {
-            return "0";
+
+            // TEMP MOCK VALUES (Phase 1)
+            // These will be replaced by real hooks later
+            int daysAlive = 7;
+            double totalMoneyEarned = 1250.0;
+
+            int visibility = VisibilityService.calculateVisibility(
+                    daysAlive,
+                    totalMoneyEarned
+            );
+
+            return String.valueOf(visibility);
         }
 
+        // ----------------------------------------
+        // Economic multiplier placeholder
+        // (stub for next step)
+        // ----------------------------------------
         if (params.equalsIgnoreCase("economic_multiplier")) {
             return "1.0";
         }
