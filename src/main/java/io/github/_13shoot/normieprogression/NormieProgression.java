@@ -9,9 +9,6 @@ public class NormieProgression extends JavaPlugin {
     @Override
     public void onEnable() {
 
-        // ---------------------------------------------
-        // Register PlaceholderAPI expansion (IMPORTANT)
-        // ---------------------------------------------
         if (Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null) {
             new ProgressionPlaceholder(this).register();
             getLogger().info("Progression placeholders registered.");
@@ -20,10 +17,5 @@ public class NormieProgression extends JavaPlugin {
         }
 
         getLogger().info("NormieProgression enabled.");
-    }
-
-    @Override
-    public void onDisable() {
-        getLogger().info("NormieProgression disabled.");
     }
 }
