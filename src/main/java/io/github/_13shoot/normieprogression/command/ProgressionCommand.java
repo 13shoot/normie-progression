@@ -137,6 +137,9 @@ public class ProgressionCommand implements CommandExecutor {
         admin.sendMessage("§7Tier: §e" + tier.name());
         admin.sendMessage("§7Eco Mult: §a" + eco);
         admin.sendMessage("§7Visibility Bonus: §b+" + visBonus);
+        admin.sendMessage("§7Visibility (days): §f" + vData.getVisibilityDays());
+        admin.sendMessage("§7Visibility (economy): §f" + vData.getVisibilityEconomy());
+        admin.sendMessage("§7Visibility (total): §e" + (vData.getVisibilityDays() + vData.getVisibilityEconomy()));
     }
 
     /* ------------------------------------------------
