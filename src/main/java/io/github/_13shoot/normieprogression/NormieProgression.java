@@ -5,6 +5,7 @@ import io.github._13shoot.normieprogression.placeholder.ProgressionPlaceholder;
 import io.github._13shoot.normieprogression.visibility.VisibilityListener;
 import io.github._13shoot.normieprogression.visibility.EconomyBalanceTracker;
 import io.github._13shoot.normieprogression.visibility.VaultEconomyHook;
+import io.github._13shoot.normieprogression.command.ProgressionCommand;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -48,5 +49,7 @@ public class NormieProgression extends JavaPlugin {
         } else {
             getLogger().warning("Vault economy not found. Economic visibility disabled.");
         }
+        // Register debug command
+        getCommand("np").setExecutor(new ProgressionCommand());
     }
 }
