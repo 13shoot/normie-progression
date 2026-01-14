@@ -14,6 +14,7 @@ public class ProgressionPlaceholder extends PlaceholderExpansion {
 
     @Override
     public String getIdentifier() {
+        // %normie_progression_xxx%
         return "normie_progression";
     }
 
@@ -27,9 +28,9 @@ public class ProgressionPlaceholder extends PlaceholderExpansion {
         return plugin.getDescription().getVersion();
     }
 
-    // 🔑 THIS IS THE MISSING PIECE
     @Override
     public String getPlugin() {
+        // REQUIRED for PlaceholderAPI 2.11.x internal expansion
         return plugin.getName();
     }
 
@@ -45,14 +46,10 @@ public class ProgressionPlaceholder extends PlaceholderExpansion {
             return "";
         }
 
-        if (params.equalsIgnoreCase("visibility")) {
-            return "0";
-        }
-
-        if (params.equalsIgnoreCase("economic_multiplier")) {
-            return "1.0";
-        }
-
-        return "";
+        // ==============================
+        // DEBUG MODE
+        // Return the raw params we receive
+        // ==============================
+        return "PARAM=" + params;
     }
 }
