@@ -1,50 +1,62 @@
 package io.github._13shoot.normieprogression.tier;
 
+import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Map;
 import java.util.UUID;
 
 public class TierStorage {
 
     private final File file;
-    private final YamlConfiguration config;
+    private final FileConfiguration config;
 
     public TierStorage(JavaPlugin plugin) {
-
         this.file = new File(plugin.getDataFolder(), "tier.yml");
-
-        if (!file.exists()) {
-            try {
-                file.getParentFile().mkdirs();
-                file.createNewFile();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-
         this.config = YamlConfiguration.loadConfiguration(file);
     }
 
+    /* ------------------------------------------------
+     * Load all tier data
+     * ------------------------------------------------ */
     public void loadAll() {
+
+        if (!file.exists()) return;
 
         for (String key : config.getKeys(false)) {
 
-            UUID uuid = UUID.fromString(key);
-            int level = config.getInt(key + ".tier", 0);
+            try {
+                UUID uuid = UUID.fromString(key);
+                int level = config.getInt(key);
 
-            TierManager.promote(uuid, Tier.fromLevel(level));
+                Tier tier = Tier.fromLevel(level);
+                TierManager.load(uuid, tier);
+
+            } catch (IllegalArgumentException ignored) {
+            }
         }
     }
 
+    /* ------------------------------------------------
+     * Save all tier data
+     * ------------------------------------------------ */
     public void saveAll() {
 
-        for (TierData data : TierManager.getAll()) {
+        // clear old data
+        for (String key : config.getKeys(false)) {
+            config.set(key, null);
+        }
 
-            String key = data.getPlayerId().toString();
-            config.set(key + ".tier", data.getTier().getLevel());
+        // ✅ FIX: iterate over entrySet()
+        for (Map.Entry<UUID, Tier> entry : TierManager.getAll().entrySet()) {
+
+            UUID uuid = entry.getKey();
+            Tier tier = entry.getValue();
+
+            config.set(uuid.toString(), tier.getLevel());
         }
 
         try {
