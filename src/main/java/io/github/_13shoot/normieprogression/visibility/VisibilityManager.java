@@ -1,69 +1,43 @@
 package io.github._13shoot.normieprogression.visibility;
 
-import java.util.Collection;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
 
 public class VisibilityManager {
 
-    // In-memory storage for visibility data
-    private static final Map<UUID, VisibilityData> dataMap =
-            new ConcurrentHashMap<>();
+    private static final Map<UUID, VisibilityData> data = new HashMap<>();
 
     private VisibilityManager() {
-        // utility class
     }
 
-    /* ------------------------------------------------
-     * Data access
-     * ------------------------------------------------ */
-
-    /**
-     * Get existing VisibilityData or create a new one.
-     */
-    public static VisibilityData getOrCreate(UUID playerId) {
-        return dataMap.computeIfAbsent(playerId, VisibilityData::new);
+    public static VisibilityData getOrCreate(UUID uuid) {
+        return data.computeIfAbsent(uuid, k -> new VisibilityData());
     }
 
-    /**
-     * Get VisibilityData if exists.
-     */
-    public static VisibilityData get(UUID playerId) {
-        return dataMap.get(playerId);
+    public static VisibilityData get(UUID uuid) {
+        return data.get(uuid);
     }
 
-    /**
-     * Remove data (not used yet, reserved for cleanup).
-     */
-    public static void remove(UUID playerId) {
-        dataMap.remove(playerId);
+    // NEW: unified accessor used by gates
+    public static int getVisibility(UUID uuid) {
+        VisibilityData d = data.get(uuid);
+        return d == null ? 0 : d.getTotalVisibility();
     }
 
-    /**
-     * Get all visibility data entries.
-     * Used by day counter scheduler.
-     */
-    public static Collection<VisibilityData> getAllData() {
-        return dataMap.values();
+    /* ---------------- Economy hook ---------------- */
+
+    public static void addEconomyVisibility(UUID uuid, int amount) {
+        getOrCreate(uuid).addEconomyVisibility(amount);
     }
 
-    /* ------------------------------------------------
-     * Visibility calculation
-     * ------------------------------------------------ */
+    /* ---------------- Persistence helpers ---------------- */
 
-    /**
-     * Calculate visibility value for a player.
-     */
-    public static int getVisibility(UUID playerId) {
-        VisibilityData data = dataMap.get(playerId);
-        if (data == null) {
-            return 0;
-        }
+    public static Map<UUID, VisibilityData> getAll() {
+        return data;
+    }
 
-        return VisibilityService.calculateVisibility(
-                data.getDaysAlive(),
-                data.getTotalMoneyEarned()
-        );
+    public static void load(UUID uuid, VisibilityData d) {
+        data.put(uuid, d);
     }
 }
