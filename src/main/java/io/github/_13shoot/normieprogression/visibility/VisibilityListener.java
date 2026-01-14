@@ -12,6 +12,11 @@ public class VisibilityListener implements Listener {
 
     private final JavaPlugin plugin;
 
+    // Decay factors (LOCKED FOR v0.2.3)
+    // days: small penalty, economy: stronger penalty
+    private static final double DAYS_DECAY_FACTOR = 0.90;     // -10%
+    private static final double ECON_DECAY_FACTOR = 0.70;     // -30%
+
     public VisibilityListener(JavaPlugin plugin) {
         this.plugin = plugin;
     }
@@ -44,10 +49,11 @@ public class VisibilityListener implements Listener {
         VisibilityData d =
                 VisibilityManager.getOrCreate(p.getUniqueId());
 
-        d.resetDaysAlive(); // daysAlive reset (existing behavior)
+        // Existing behavior
+        d.resetDaysAlive();
 
-        // decay applied in Step 2 (v0.2.3)
-        // d.decayOnDeath(daysFactor, economyFactor);
+        // NEW: visibility decay on death (v0.2.3)
+        d.decayOnDeath(DAYS_DECAY_FACTOR, ECON_DECAY_FACTOR);
 
         GateService.evaluate(p);
     }
