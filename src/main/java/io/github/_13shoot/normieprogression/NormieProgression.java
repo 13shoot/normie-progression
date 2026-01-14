@@ -1,7 +1,10 @@
 package io.github._13shoot.normieprogression;
 
+
 import io.github._13shoot.normieprogression.placeholder.ProgressionPlaceholder;
 import io.github._13shoot.normieprogression.visibility.VisibilityListener;
+import io.github._13shoot.normieprogression.visibility.EconomyBalanceTracker;
+import io.github._13shoot.normieprogression.visibility.VaultEconomyHook;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -29,5 +32,21 @@ public class NormieProgression extends JavaPlugin {
         visibilityListener.startDayCounter();
 
         getLogger().info("NormieProgression enabled.");
+        // ---------------------------------------------
+        // Hook Vault economy for visibility
+        // ---------------------------------------------
+        if (VaultEconomyHook.init()) {
+
+            EconomyBalanceTracker tracker =
+                    new EconomyBalanceTracker(
+                            this,
+                            VaultEconomyHook.getEconomy()
+                    );
+
+            tracker.start();
+            getLogger().info("Economy visibility tracking enabled.");
+        } else {
+            getLogger().warning("Vault economy not found. Economic visibility disabled.");
+        }
     }
 }
