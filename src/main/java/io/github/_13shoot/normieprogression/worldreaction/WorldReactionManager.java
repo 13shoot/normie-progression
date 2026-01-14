@@ -1,5 +1,9 @@
 package io.github._13shoot.normieprogression.worldreaction;
 
+import io.github._13shoot.normieprogression.worldreaction.reaction.ThreatReaction;
+import io.github._13shoot.normieprogression.worldreaction.reaction.YieldReaction;
+import io.github._13shoot.normieprogression.worldreaction.reaction.SpawnBiasReaction;
+import io.github._13shoot.normieprogression.worldreaction.reaction.FeedbackReaction;
 import io.github._13shoot.normieprogression.tier.TierManager;
 import io.github._13shoot.normieprogression.tier.Tier;
 import org.bukkit.Bukkit;
@@ -36,7 +40,19 @@ public class WorldReactionManager {
      * STEP 1: empty by design.
      */
     public void registerDefaults() {
-        // Reactions will be registered in STEP 2
+
+        // A — Threat perception
+        WorldReactionManager.register(new ThreatReaction());
+
+        // B — Environmental yield
+        WorldReactionManager.register(new YieldReaction());
+
+        // C — Spawn / presence bias
+        WorldReactionManager.register(new SpawnBiasReaction());
+
+        // D — Subtle feedback
+        WorldReactionManager.register(new FeedbackReaction());
+
     }
 
     /**
