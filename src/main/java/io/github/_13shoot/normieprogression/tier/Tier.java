@@ -31,16 +31,24 @@ public enum Tier {
 
     /**
      * Convert numeric tier (admin-friendly) to Tier enum.
-     *
-     * Mapping:
-     * 0 -> T0_UNSEEN
-     * 1 -> T1_RECOGNIZED
-     * 2 -> T2_ACKNOWLEDGED
-     * 3 -> T3_RESPONDED
-     * 4 -> T4_REMEMBERED
+     * Used by admin commands.
      */
     public static Tier fromNumber(int number) {
         return switch (number) {
+            case 1 -> T1_RECOGNIZED;
+            case 2 -> T2_ACKNOWLEDGED;
+            case 3 -> T3_RESPONDED;
+            case 4 -> T4_REMEMBERED;
+            default -> T0_UNSEEN;
+        };
+    }
+
+    /**
+     * Convert stored tier level to Tier enum.
+     * Used by TierStorage when loading from yml.
+     */
+    public static Tier fromLevel(int level) {
+        return switch (level) {
             case 1 -> T1_RECOGNIZED;
             case 2 -> T2_ACKNOWLEDGED;
             case 3 -> T3_RESPONDED;
