@@ -1,17 +1,18 @@
 package io.github._13shoot.normieprogression;
 
-import io.github._13shoot.normieprogression.gate.impl.AcknowledgementGate;
-import io.github._13shoot.normieprogression.gate.impl.RespondedGate;
-import io.github._13shoot.normieprogression.gate.impl.RememberedGate;
 import io.github._13shoot.normieprogression.command.ProgressionCommand;
 import io.github._13shoot.normieprogression.gate.GateRegistry;
+import io.github._13shoot.normieprogression.gate.impl.AcknowledgementGate;
 import io.github._13shoot.normieprogression.gate.impl.RecognitionGate;
+import io.github._13shoot.normieprogression.gate.impl.RememberedGate;
+import io.github._13shoot.normieprogression.gate.impl.RespondedGate;
 import io.github._13shoot.normieprogression.placeholder.ProgressionPlaceholder;
 import io.github._13shoot.normieprogression.tier.TierStorage;
 import io.github._13shoot.normieprogression.visibility.EconomyBalanceTracker;
 import io.github._13shoot.normieprogression.visibility.VaultEconomyHook;
 import io.github._13shoot.normieprogression.visibility.VisibilityListener;
 import io.github._13shoot.normieprogression.visibility.VisibilityStorage;
+import io.github._13shoot.normieprogression.worldreaction.WorldReactionManager;
 import net.milkbowl.vault.economy.Economy;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -83,6 +84,15 @@ public class NormieProgression extends JavaPlugin {
         } else {
             getLogger().warning("Vault economy not found. Economic visibility disabled.");
         }
+
+        /* ------------------------------------------------
+         * World Reaction (v0.3.0)
+         * ------------------------------------------------ */
+        WorldReactionManager reactionManager =
+                new WorldReactionManager(this);
+
+        reactionManager.registerDefaults();
+        reactionManager.start();
 
         /* ------------------------------------------------
          * Admin command (/np)
