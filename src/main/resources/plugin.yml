@@ -1,0 +1,5 @@
+name: NormieProgression
+version: 0.1.0
+main: io.github._13shoot.normieprogression.NormieProgression
+api-version: "1.21"
+depend: [PlaceholderAPI]
