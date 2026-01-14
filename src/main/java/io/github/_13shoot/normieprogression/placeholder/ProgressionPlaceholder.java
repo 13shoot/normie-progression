@@ -14,7 +14,6 @@ public class ProgressionPlaceholder extends PlaceholderExpansion {
 
     @Override
     public String getIdentifier() {
-        // %normie_progression_xxx%
         return "normie_progression";
     }
 
@@ -28,9 +27,9 @@ public class ProgressionPlaceholder extends PlaceholderExpansion {
         return plugin.getDescription().getVersion();
     }
 
+    // 🔑 THIS IS THE MISSING PIECE
     @Override
     public String getPlugin() {
-        // 🔥 REQUIRED for PlaceholderAPI 2.11.x
         return plugin.getName();
     }
 
