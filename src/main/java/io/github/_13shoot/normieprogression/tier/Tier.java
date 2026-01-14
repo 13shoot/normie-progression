@@ -1,8 +1,9 @@
 package io.github._13shoot.normieprogression.tier;
 
 /**
- * Tier represents a progression state.
- * Tier is monotonic: once increased, it does not decrease.
+ * Represents progression tier of a player.
+ * Tier is monotonic: once promoted, it should not be downgraded
+ * except by admin tools.
  */
 public enum Tier {
 
@@ -28,12 +29,23 @@ public enum Tier {
         return label;
     }
 
-    public static Tier fromLevel(int level) {
-        for (Tier tier : values()) {
-            if (tier.level == level) {
-                return tier;
-            }
-        }
-        return T0_UNSEEN;
+    /**
+     * Convert numeric tier (admin-friendly) to Tier enum.
+     *
+     * Mapping:
+     * 0 -> T0_UNSEEN
+     * 1 -> T1_RECOGNIZED
+     * 2 -> T2_ACKNOWLEDGED
+     * 3 -> T3_RESPONDED
+     * 4 -> T4_REMEMBERED
+     */
+    public static Tier fromNumber(int number) {
+        return switch (number) {
+            case 1 -> T1_RECOGNIZED;
+            case 2 -> T2_ACKNOWLEDGED;
+            case 3 -> T3_RESPONDED;
+            case 4 -> T4_REMEMBERED;
+            default -> T0_UNSEEN;
+        };
     }
 }
