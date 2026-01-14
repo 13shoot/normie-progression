@@ -53,4 +53,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: NormieProgression
-          path: "**/target/*.jar"
+          path: "target/*.jar"
