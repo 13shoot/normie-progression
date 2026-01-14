@@ -43,7 +43,8 @@ public class EconomyBalanceTracker {
             if (current > previous) {
                 double earned = current - previous;
 
-                VaultEconomyHook.onMoneyEarned(data, earned);
+                // v0.2.3: send UUID, not VisibilityData
+                VaultEconomyHook.onMoneyEarned(id, earned);
             }
 
             lastBalance.put(id, current);
