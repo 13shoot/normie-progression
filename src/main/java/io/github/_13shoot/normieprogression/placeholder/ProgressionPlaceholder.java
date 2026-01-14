@@ -29,11 +29,16 @@ public class ProgressionPlaceholder extends PlaceholderExpansion {
     }
 
     @Override
+    public String getPlugin() {
+        // 🔥 REQUIRED for PlaceholderAPI 2.11.x
+        return plugin.getName();
+    }
+
+    @Override
     public boolean persist() {
         return true;
     }
 
-    // 🔥 THIS IS THE IMPORTANT PART 🔥
     @Override
     public String onPlaceholderRequest(Player player, String params) {
 
