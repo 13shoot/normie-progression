@@ -1,5 +1,8 @@
 package io.github._13shoot.normieprogression;
 
+import io.github._13shoot.normieprogression.gate.impl.AcknowledgementGate;
+import io.github._13shoot.normieprogression.gate.impl.RespondedGate;
+import io.github._13shoot.normieprogression.gate.impl.RememberedGate;
 import io.github._13shoot.normieprogression.command.ProgressionCommand;
 import io.github._13shoot.normieprogression.gate.GateRegistry;
 import io.github._13shoot.normieprogression.gate.impl.RecognitionGate;
@@ -60,6 +63,9 @@ public class NormieProgression extends JavaPlugin {
          * Register Gates
          * ------------------------------------------------ */
         GateRegistry.register(new RecognitionGate());
+        GateRegistry.register(new AcknowledgementGate());
+        GateRegistry.register(new RespondedGate());
+        GateRegistry.register(new RememberedGate());
 
         /* ------------------------------------------------
          * Economy visibility (Vault)
