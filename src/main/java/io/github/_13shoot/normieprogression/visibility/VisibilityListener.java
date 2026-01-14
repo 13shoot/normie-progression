@@ -44,8 +44,7 @@ public class VisibilityListener implements Listener {
         // Run once every Minecraft day (24000 ticks)
         Bukkit.getScheduler().runTaskTimer(
                 plugin,
-                () -> VisibilityManager
-                        .getOrCreateForAll()
+                () -> VisibilityManager.getAllData()
                         .forEach(VisibilityData::incrementDaysAlive),
                 24000L,
                 24000L
