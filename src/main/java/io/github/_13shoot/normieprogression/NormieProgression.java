@@ -1,12 +1,14 @@
 package io.github._13shoot.normieprogression;
 
 import io.github._13shoot.normieprogression.command.TierDebugCommand;
+import io.github._13shoot.normieprogression.gate.GateRegistry;
+import io.github._13shoot.normieprogression.gate.impl.RecognitionGate;
 import io.github._13shoot.normieprogression.placeholder.ProgressionPlaceholder;
+import io.github._13shoot.normieprogression.tier.TierStorage;
 import io.github._13shoot.normieprogression.visibility.EconomyBalanceTracker;
 import io.github._13shoot.normieprogression.visibility.VaultEconomyHook;
 import io.github._13shoot.normieprogression.visibility.VisibilityListener;
 import io.github._13shoot.normieprogression.visibility.VisibilityStorage;
-import io.github._13shoot.normieprogression.tier.TierStorage;
 import net.milkbowl.vault.economy.Economy;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -43,16 +45,21 @@ public class NormieProgression extends JavaPlugin {
         visibilityListener.startDayCounter();
 
         /* ------------------------------------------------
-         * Visibility persistence (load)
+         * Visibility persistence
          * ------------------------------------------------ */
         visibilityStorage = new VisibilityStorage(this);
         visibilityStorage.loadAll();
 
         /* ------------------------------------------------
-         * Tier persistence (load)
+         * Tier persistence
          * ------------------------------------------------ */
         tierStorage = new TierStorage(this);
         tierStorage.loadAll();
+
+        /* ------------------------------------------------
+         * Register Gates
+         * ------------------------------------------------ */
+        GateRegistry.register(new RecognitionGate());
 
         /* ------------------------------------------------
          * Economy visibility (Vault)
@@ -84,16 +91,10 @@ public class NormieProgression extends JavaPlugin {
     @Override
     public void onDisable() {
 
-        /* ------------------------------------------------
-         * Save visibility data
-         * ------------------------------------------------ */
         if (visibilityStorage != null) {
             visibilityStorage.saveAll();
         }
 
-        /* ------------------------------------------------
-         * Save tier data
-         * ------------------------------------------------ */
         if (tierStorage != null) {
             tierStorage.saveAll();
         }
