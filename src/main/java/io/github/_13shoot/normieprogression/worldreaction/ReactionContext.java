@@ -1,24 +1,57 @@
 package io.github._13shoot.normieprogression.worldreaction;
 
+import io.github._13shoot.normieprogression.visibility.VisibilityManager;
+import org.bukkit.World;
+import org.bukkit.block.Biome;
+import org.bukkit.entity.Player;
+
 /**
- * WorldReaction
+ * ReactionContext
  *
- * Base interface for all world reactions.
- * WorldReaction must be:
- * - time-based
- * - stateless (no persistence here)
- * - safe to skip silently
+ * Snapshot of player + world state for world reaction evaluation.
+ * Immutable per tick.
  */
-public interface WorldReaction {
+public class ReactionContext {
 
-    /**
-     * Unique id for debug/logging.
-     */
-    String getId();
+    private final Player player;
+    private final World world;
+    private final Biome biome;
+    private final long worldTime;
+    private final int visibility;
 
-    /**
-     * Evaluate reaction based on context.
-     * Implementation may apply subtle effects.
-     */
-    void evaluate(ReactionContext context);
+    private ReactionContext(Player player) {
+        this.player = player;
+        this.world = player.getWorld();
+        this.biome = player.getLocation().getBlock().getBiome();
+        this.worldTime = world.getTime();
+        this.visibility = VisibilityManager.getVisibility(player.getUniqueId());
+    }
+
+    public static ReactionContext from(Player player) {
+        return new ReactionContext(player);
+    }
+
+    public Player getPlayer() {
+        return player;
+    }
+
+    public World getWorld() {
+        return world;
+    }
+
+    public Biome getBiome() {
+        return biome;
+    }
+
+    public long getWorldTime() {
+        return worldTime;
+    }
+
+    public boolean isNight() {
+        return worldTime >= 13000 && worldTime <= 23000;
+    }
+
+    public int getVisibility() {
+        return visibility;
+    }
 }
