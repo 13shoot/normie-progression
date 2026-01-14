@@ -1,35 +1,49 @@
 package io.github._13shoot.normieprogression.tier;
 
-import java.util.Collection;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
 
 public class TierManager {
 
-    private static final Map<UUID, TierData> tierMap =
-            new ConcurrentHashMap<>();
+    private static final Map<UUID, Tier> tiers = new HashMap<>();
 
     private TierManager() {
     }
 
-    public static TierData getOrCreate(UUID playerId) {
-        return tierMap.computeIfAbsent(playerId, TierData::new);
+    public static Tier getTier(UUID uuid) {
+        return tiers.getOrDefault(uuid, Tier.T0_UNSEEN);
     }
 
-    public static Tier getTier(UUID playerId) {
-        TierData data = tierMap.get(playerId);
-        if (data == null) {
-            return Tier.T0_UNSEEN;
+    /**
+     * Promote tier following progression rules.
+     * This method is monotonic: it will NOT downgrade tier.
+     */
+    public static void promote(UUID uuid, Tier newTier) {
+
+        Tier current = getTier(uuid);
+
+        if (newTier.getLevel() > current.getLevel()) {
+            tiers.put(uuid, newTier);
         }
-        return data.getTier();
     }
 
-    public static void promote(UUID playerId, Tier newTier) {
-        getOrCreate(playerId).promoteTo(newTier);
+    /**
+     * Force set tier (admin only).
+     * This bypasses progression rules.
+     */
+    public static void forceSet(UUID uuid, Tier tier) {
+        tiers.put(uuid, tier);
     }
 
-    public static Collection<TierData> getAll() {
-        return tierMap.values();
+    /* ------------------------------------------------
+     * Persistence helpers
+     * ------------------------------------------------ */
+    public static Map<UUID, Tier> getAll() {
+        return tiers;
+    }
+
+    public static void load(UUID uuid, Tier tier) {
+        tiers.put(uuid, tier);
     }
 }
