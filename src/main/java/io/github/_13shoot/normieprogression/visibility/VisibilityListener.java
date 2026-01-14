@@ -16,26 +16,18 @@ public class VisibilityListener implements Listener {
         this.plugin = plugin;
     }
 
-    /* ------------------------------------------------
-     * Days Alive Counter (every Minecraft day)
-     * ------------------------------------------------ */
+    /* ---------------- Day counter ---------------- */
+
     public void startDayCounter() {
 
-        // 24000 ticks = 1 Minecraft day
         Bukkit.getScheduler().runTaskTimer(
                 plugin,
                 () -> {
-                    for (Player player : Bukkit.getOnlinePlayers()) {
-
-                        VisibilityData data =
-                                VisibilityManager.getOrCreate(
-                                        player.getUniqueId()
-                                );
-
-                        data.incrementDaysAlive();
-
-                        // 🔑 Evaluate gate when day increases
-                        GateService.evaluate(player);
+                    for (Player p : Bukkit.getOnlinePlayers()) {
+                        VisibilityData d =
+                                VisibilityManager.getOrCreate(p.getUniqueId());
+                        d.incrementDaysAlive();
+                        GateService.evaluate(p);
                     }
                 },
                 24000L,
@@ -43,22 +35,20 @@ public class VisibilityListener implements Listener {
         );
     }
 
-    /* ------------------------------------------------
-     * Reset on death
-     * ------------------------------------------------ */
+    /* ---------------- Death ---------------- */
+
     @EventHandler
-    public void onPlayerDeath(PlayerDeathEvent event) {
+    public void onDeath(PlayerDeathEvent e) {
 
-        Player player = event.getEntity();
+        Player p = e.getEntity();
+        VisibilityData d =
+                VisibilityManager.getOrCreate(p.getUniqueId());
 
-        VisibilityData data =
-                VisibilityManager.getOrCreate(
-                        player.getUniqueId()
-                );
+        d.resetDaysAlive(); // daysAlive reset (existing behavior)
 
-        data.resetDaysAlive();
+        // decay applied in Step 2 (v0.2.3)
+        // d.decayOnDeath(daysFactor, economyFactor);
 
-        // Optional: gate re-evaluation (safe)
-        GateService.evaluate(player);
+        GateService.evaluate(p);
     }
 }
