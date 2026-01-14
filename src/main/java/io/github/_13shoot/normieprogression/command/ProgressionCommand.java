@@ -73,7 +73,7 @@ public class ProgressionCommand implements CommandExecutor {
             try {
                 int number = Integer.parseInt(args[3]);
                 Tier tier = Tier.fromNumber(number);
-                TierManager.promote(target.getUniqueId(), tier);
+                TierManager.forceSet(target.getUniqueId(), tier);
 
                 admin.sendMessage("§aSet tier of " + target.getName()
                         + " to " + tier.name());
@@ -92,7 +92,7 @@ public class ProgressionCommand implements CommandExecutor {
                 return;
             }
 
-            TierManager.promote(target.getUniqueId(), Tier.T0_UNSEEN);
+            TierManager.forceSet(target.getUniqueId(), Tier.T0_UNSEEN);
             admin.sendMessage("§eReset tier of " + target.getName());
             return;
         }
