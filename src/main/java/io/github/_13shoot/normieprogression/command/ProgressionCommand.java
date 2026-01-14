@@ -1,5 +1,6 @@
 package io.github._13shoot.normieprogression.command;
 
+import io.github._13shoot.normieprogression.NormieProgression;
 import io.github._13shoot.normieprogression.gate.GateService;
 import io.github._13shoot.normieprogression.tier.Tier;
 import io.github._13shoot.normieprogression.tier.TierManager;
@@ -38,10 +39,11 @@ public class ProgressionCommand implements CommandExecutor {
         }
 
         switch (args[0].toLowerCase()) {
-
             case "tier" -> handleTier(admin, args);
             case "debug" -> handleDebug(admin, args);
             case "gate" -> handleGate(admin, args);
+            case "save" -> handleSave(admin);
+            case "reload" -> handleReload(admin);
             default -> sendUsage(admin);
         }
 
@@ -59,6 +61,7 @@ public class ProgressionCommand implements CommandExecutor {
             return;
         }
 
+        // /np tier set <player> <0-4>
         if (args.length == 4 && args[1].equalsIgnoreCase("set")) {
 
             Player target = Bukkit.getPlayer(args[2]);
@@ -68,13 +71,29 @@ public class ProgressionCommand implements CommandExecutor {
             }
 
             try {
-                Tier tier = Tier.valueOf(args[3].toUpperCase());
+                int number = Integer.parseInt(args[3]);
+                Tier tier = Tier.fromNumber(number);
                 TierManager.promote(target.getUniqueId(), tier);
+
                 admin.sendMessage("§aSet tier of " + target.getName()
                         + " to " + tier.name());
-            } catch (IllegalArgumentException e) {
-                admin.sendMessage("§cInvalid tier.");
+            } catch (NumberFormatException e) {
+                admin.sendMessage("§cTier must be a number (0–4).");
             }
+            return;
+        }
+
+        // /np tier reset <player>
+        if (args.length == 3 && args[1].equalsIgnoreCase("reset")) {
+
+            Player target = Bukkit.getPlayer(args[2]);
+            if (target == null) {
+                admin.sendMessage("§cPlayer not found.");
+                return;
+            }
+
+            TierManager.promote(target.getUniqueId(), Tier.T0_UNSEEN);
+            admin.sendMessage("§eReset tier of " + target.getName());
             return;
         }
 
@@ -141,11 +160,45 @@ public class ProgressionCommand implements CommandExecutor {
                 + target.getName());
     }
 
+    /* ------------------------------------------------
+     * /np save
+     * ------------------------------------------------ */
+    private void handleSave(Player admin) {
+
+        NormieProgression plugin =
+                (NormieProgression) Bukkit.getPluginManager()
+                        .getPlugin("NormieProgression");
+
+        if (plugin != null) {
+            plugin.forceSave();
+            admin.sendMessage("§aProgression data saved.");
+        }
+    }
+
+    /* ------------------------------------------------
+     * /np reload
+     * ------------------------------------------------ */
+    private void handleReload(Player admin) {
+
+        NormieProgression plugin =
+                (NormieProgression) Bukkit.getPluginManager()
+                        .getPlugin("NormieProgression");
+
+        if (plugin != null) {
+            plugin.forceSave();
+            plugin.forceLoad();
+            admin.sendMessage("§aProgression data reloaded.");
+        }
+    }
+
     private void sendUsage(Player player) {
         player.sendMessage("§6=== Normie Progression Admin ===");
         player.sendMessage("§7/np tier");
-        player.sendMessage("§7/np tier set <player> <tier>");
+        player.sendMessage("§7/np tier set <player> <0-4>");
+        player.sendMessage("§7/np tier reset <player>");
         player.sendMessage("§7/np debug <player>");
         player.sendMessage("§7/np gate eval <player>");
+        player.sendMessage("§7/np save");
+        player.sendMessage("§7/np reload");
     }
 }
