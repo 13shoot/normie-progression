@@ -1,11 +1,12 @@
 package io.github._13shoot.normieprogression;
 
-import io.github._13shoot.normieprogression.command.ProgressionCommand;
+import io.github._13shoot.normieprogression.command.TierDebugCommand;
 import io.github._13shoot.normieprogression.placeholder.ProgressionPlaceholder;
 import io.github._13shoot.normieprogression.visibility.EconomyBalanceTracker;
 import io.github._13shoot.normieprogression.visibility.VaultEconomyHook;
 import io.github._13shoot.normieprogression.visibility.VisibilityListener;
 import io.github._13shoot.normieprogression.visibility.VisibilityStorage;
+import io.github._13shoot.normieprogression.tier.TierStorage;
 import net.milkbowl.vault.economy.Economy;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -13,6 +14,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 public class NormieProgression extends JavaPlugin {
 
     private VisibilityStorage visibilityStorage;
+    private TierStorage tierStorage;
 
     @Override
     public void onEnable() {
@@ -47,6 +49,12 @@ public class NormieProgression extends JavaPlugin {
         visibilityStorage.loadAll();
 
         /* ------------------------------------------------
+         * Tier persistence (load)
+         * ------------------------------------------------ */
+        tierStorage = new TierStorage(this);
+        tierStorage.loadAll();
+
+        /* ------------------------------------------------
          * Economy visibility (Vault)
          * ------------------------------------------------ */
         if (VaultEconomyHook.init()) {
@@ -64,10 +72,10 @@ public class NormieProgression extends JavaPlugin {
         }
 
         /* ------------------------------------------------
-         * Debug command
+         * Debug command (Tier)
          * ------------------------------------------------ */
         if (getCommand("np") != null) {
-            getCommand("np").setExecutor(new ProgressionCommand());
+            getCommand("np").setExecutor(new TierDebugCommand());
         }
 
         getLogger().info("NormieProgression enabled.");
@@ -81,6 +89,13 @@ public class NormieProgression extends JavaPlugin {
          * ------------------------------------------------ */
         if (visibilityStorage != null) {
             visibilityStorage.saveAll();
+        }
+
+        /* ------------------------------------------------
+         * Save tier data
+         * ------------------------------------------------ */
+        if (tierStorage != null) {
+            tierStorage.saveAll();
         }
 
         getLogger().info("NormieProgression disabled.");
