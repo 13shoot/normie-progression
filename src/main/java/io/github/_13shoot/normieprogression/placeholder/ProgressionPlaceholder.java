@@ -2,7 +2,6 @@ package io.github._13shoot.normieprogression.placeholder;
 
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
 import org.bukkit.OfflinePlayer;
-import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class ProgressionPlaceholder extends PlaceholderExpansion {
@@ -11,16 +10,6 @@ public class ProgressionPlaceholder extends PlaceholderExpansion {
 
     public ProgressionPlaceholder(JavaPlugin plugin) {
         this.plugin = plugin;
-    }
-
-    @Override
-    public boolean canRegister() {
-        return true;
-    }
-
-    @Override
-    public Plugin getPlugin() {
-        return plugin;
     }
 
     @Override
@@ -41,6 +30,7 @@ public class ProgressionPlaceholder extends PlaceholderExpansion {
 
     @Override
     public boolean persist() {
+        // Keep registered across reloads
         return true;
     }
 
