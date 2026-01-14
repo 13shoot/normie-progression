@@ -1,6 +1,6 @@
 package io.github._13shoot.normieprogression;
 
-import io.github._13shoot.normieprogression.command.TierDebugCommand;
+import io.github._13shoot.normieprogression.command.ProgressionCommand;
 import io.github._13shoot.normieprogression.gate.GateRegistry;
 import io.github._13shoot.normieprogression.gate.impl.RecognitionGate;
 import io.github._13shoot.normieprogression.placeholder.ProgressionPlaceholder;
@@ -79,13 +79,12 @@ public class NormieProgression extends JavaPlugin {
         }
 
         /* ------------------------------------------------
-         * Debug command (Tier)
+         * Admin command (/np)
          * ------------------------------------------------ */
         if (getCommand("np") != null) {
-            getCommand("np").setExecutor(new TierDebugCommand());
+            getCommand("np").setExecutor(new ProgressionCommand());
         }
 
-        getLogger().info("NormieProgression enabled.");
     }
 
     @Override
