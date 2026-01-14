@@ -85,19 +85,34 @@ public class NormieProgression extends JavaPlugin {
             getCommand("np").setExecutor(new ProgressionCommand());
         }
 
+        getLogger().info("NormieProgression enabled.");
     }
 
     @Override
     public void onDisable() {
 
+        forceSave();
+        getLogger().info("NormieProgression disabled.");
+    }
+
+    /* ------------------------------------------------
+     * Admin helpers
+     * ------------------------------------------------ */
+    public void forceSave() {
         if (visibilityStorage != null) {
             visibilityStorage.saveAll();
         }
-
         if (tierStorage != null) {
             tierStorage.saveAll();
         }
+    }
 
-        getLogger().info("NormieProgression disabled.");
+    public void forceLoad() {
+        if (visibilityStorage != null) {
+            visibilityStorage.loadAll();
+        }
+        if (tierStorage != null) {
+            tierStorage.loadAll();
+        }
     }
 }
