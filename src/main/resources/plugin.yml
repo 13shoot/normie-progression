@@ -6,3 +6,8 @@ author: 13shoot
 
 softdepend:
   - PlaceholderAPI
+
+commands:
+  np:
+    description: Normie Progression debug command
+    usage: /np vis
