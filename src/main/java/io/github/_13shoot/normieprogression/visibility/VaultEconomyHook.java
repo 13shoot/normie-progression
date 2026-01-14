@@ -4,6 +4,8 @@ import net.milkbowl.vault.economy.Economy;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.RegisteredServiceProvider;
 
+import java.util.UUID;
+
 public class VaultEconomyHook {
 
     private static Economy economy;
@@ -32,10 +34,10 @@ public class VaultEconomyHook {
 
     /**
      * Convert money earned to economy visibility.
-     * This is intentionally simple for v0.2.3.
+     * v0.2.3: MUST go through VisibilityManager to enforce soft cap.
      */
     public static void onMoneyEarned(
-            VisibilityData data,
+            UUID uuid,
             double amount
     ) {
 
@@ -46,6 +48,7 @@ public class VaultEconomyHook {
 
         if (visibilityGain <= 0) return;
 
-        data.addEconomyVisibility(visibilityGain);
+        // IMPORTANT: enforce soft cap here
+        VisibilityManager.addEconomyVisibility(uuid, visibilityGain);
     }
 }
