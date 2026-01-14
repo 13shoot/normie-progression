@@ -8,8 +8,10 @@ public class VisibilityManager {
 
     private static final Map<UUID, VisibilityData> data = new HashMap<>();
 
-    private VisibilityManager() {
-    }
+    // Soft cap settings (v0.2.3)
+    private static final int ECON_VIS_PER_DAY_SOFT_CAP = 20;
+
+    private VisibilityManager() {}
 
     public static VisibilityData getOrCreate(UUID uuid) {
         return data.computeIfAbsent(uuid, k -> new VisibilityData());
@@ -19,19 +21,25 @@ public class VisibilityManager {
         return data.get(uuid);
     }
 
-    // NEW: unified accessor used by gates
     public static int getVisibility(UUID uuid) {
         VisibilityData d = data.get(uuid);
         return d == null ? 0 : d.getTotalVisibility();
     }
 
-    /* ---------------- Economy hook ---------------- */
-
     public static void addEconomyVisibility(UUID uuid, int amount) {
-        getOrCreate(uuid).addEconomyVisibility(amount);
-    }
+        if (amount <= 0) return;
 
-    /* ---------------- Persistence helpers ---------------- */
+        VisibilityData d = getOrCreate(uuid);
+
+        int today = d.getEconomyVisibilityToday();
+        int allowed = Math.max(0, ECON_VIS_PER_DAY_SOFT_CAP - today);
+
+        int applied = Math.min(amount, allowed);
+        if (applied > 0) {
+            d.addEconomyVisibility(applied);
+            d.addEconomyVisibilityToday(applied);
+        }
+    }
 
     public static Map<UUID, VisibilityData> getAll() {
         return data;
