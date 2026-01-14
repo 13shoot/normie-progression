@@ -14,8 +14,9 @@ public class ProgressionPlaceholder extends PlaceholderExpansion {
 
     @Override
     public String getIdentifier() {
-        // %normie_progression_xxx%
-        return "normie_progression";
+        // CHANGE HERE: no underscore
+        // %normieprogression_visibility%
+        return "normieprogression";
     }
 
     @Override
@@ -46,10 +47,14 @@ public class ProgressionPlaceholder extends PlaceholderExpansion {
             return "";
         }
 
-        // ==============================
-        // DEBUG MODE
-        // Return the raw params we receive
-        // ==============================
-        return "PARAM=" + params;
+        if (params.equalsIgnoreCase("visibility")) {
+            return "0";
+        }
+
+        if (params.equalsIgnoreCase("economic_multiplier")) {
+            return "1.0";
+        }
+
+        return "";
     }
 }
