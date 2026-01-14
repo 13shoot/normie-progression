@@ -1,6 +1,6 @@
 package io.github._13shoot.normieprogression.placeholder;
 
-import io.github._13shoot.normieprogression.visibility.VisibilityService;
+import io.github._13shoot.normieprogression.visibility.VisibilityManager;
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -17,7 +17,7 @@ public class ProgressionPlaceholder extends PlaceholderExpansion {
     public String getIdentifier() {
         // IMPORTANT:
         // Do NOT use underscore (_) here
-        // %normieprogression_visibility%
+        // Example: %normieprogression_visibility%
         return "normieprogression";
     }
 
@@ -39,6 +39,7 @@ public class ProgressionPlaceholder extends PlaceholderExpansion {
 
     @Override
     public boolean persist() {
+        // Keep this expansion registered across reloads
         return true;
     }
 
@@ -53,25 +54,17 @@ public class ProgressionPlaceholder extends PlaceholderExpansion {
         // Visibility placeholder
         // ----------------------------------------
         if (params.equalsIgnoreCase("visibility")) {
-
-            // TEMP MOCK VALUES (Phase 1)
-            // These will be replaced by real hooks later
-            int daysAlive = 7;
-            double totalMoneyEarned = 1250.0;
-
-            int visibility = VisibilityService.calculateVisibility(
-                    daysAlive,
-                    totalMoneyEarned
+            return String.valueOf(
+                    VisibilityManager.getVisibility(player.getUniqueId())
             );
-
-            return String.valueOf(visibility);
         }
 
         // ----------------------------------------
-        // Economic multiplier placeholder
-        // (stub for next step)
+        // Economic multiplier placeholder (stub)
         // ----------------------------------------
         if (params.equalsIgnoreCase("economic_multiplier")) {
+            // Phase 1: fixed multiplier
+            // Phase 2: derive from visibility / marks
             return "1.0";
         }
 
