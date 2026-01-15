@@ -68,7 +68,8 @@ public class MarkTriggerListeners_Advanced implements Listener {
                     0
             ));
         }
-
+    }
+    
     /* ------------------------------------------------
      * RECOGNITION
      * Advancement bundle completion
