@@ -52,13 +52,13 @@ public class ProgressionGUI {
         for (int s : MARK_SLOTS) inv.setItem(s, markEmpty);
         for (int s : CHRONICLE_SLOTS) inv.setItem(s, chrEmpty);
 
-        // Progression icons
+        // Progression icons (T0 fixed)
         List<ItemStack> prog = buildProgressionIcons(player);
         for (int i = 0; i < prog.size() && i < PROGRESSION_SLOTS.length; i++) {
             inv.setItem(PROGRESSION_SLOTS[i], prog.get(i));
         }
 
-        // Mark icons (polished)
+        // Mark icons
         List<ItemStack> marks = buildMarkIcons(player);
         for (int i = 0; i < marks.size() && i < MARK_SLOTS.length; i++) {
             inv.setItem(MARK_SLOTS[i], marks.get(i));
@@ -72,20 +72,24 @@ public class ProgressionGUI {
         List<ItemStack> list = new ArrayList<>();
         Tier tier = TierManager.getTier(player.getUniqueId());
 
-        if (tier != Tier.T0_UNSEEN)
-            list.add(icon(Material.COMPASS, "§fStill Here", "§7The world noticed your presence."));
+        // Always show T0_UNSEEN
+        list.add(icon(
+                Material.BARRIER,
+                "§7Unseen",
+                "§8The world has not noticed you yet."
+        ));
 
         if (tier.ordinal() >= Tier.T1_RECOGNIZED.ordinal())
-            list.add(icon(Material.ECHO_SHARD, "§7Echoes", "§8Your actions left traces."));
+            list.add(icon(Material.COMPASS, "§fNoticed", "§7Your presence is acknowledged."));
 
         if (tier.ordinal() >= Tier.T2_ACKNOWLEDGED.ordinal())
-            list.add(icon(Material.NAME_TAG, "§6A Name", "§7Some remember it."));
+            list.add(icon(Material.ECHO_SHARD, "§7Acknowledged", "§8Your actions leave echoes."));
 
         if (tier.ordinal() >= Tier.T3_RESPONDED.ordinal())
-            list.add(icon(Material.NETHER_STAR, "§dResponse", "§7The world reacts."));
+            list.add(icon(Material.NAME_TAG, "§6Responded", "§7The world reacts to you."));
 
         if (tier.ordinal() >= Tier.T4_REMEMBERED.ordinal())
-            list.add(icon(Material.AMETHYST_SHARD, "§bRecorded", "§7You are part of the record."));
+            list.add(icon(Material.AMETHYST_SHARD, "§bRemembered", "§7You are part of the record."));
 
         return list;
     }
@@ -93,22 +97,21 @@ public class ProgressionGUI {
     private static List<ItemStack> buildMarkIcons(Player player) {
 
         List<ItemStack> list = new ArrayList<>();
-        long now = System.currentTimeMillis();
 
         for (MarkData data : MarkStorage.getMarks(player.getUniqueId())) {
-            list.add(markItem(data.getType(), data, now));
+            list.add(markItem(data.getType()));
         }
         return list;
     }
 
-    private static ItemStack markItem(MarkType type, MarkData data, long now) {
+    // Polished Mark icons & lore (LOCKED)
+    private static ItemStack markItem(MarkType type) {
 
         Material mat;
         String title;
         List<String> lore = new ArrayList<>();
 
         switch (type) {
-
             case SURVIVAL -> {
                 mat = Material.OAK_LOG;
                 title = "§aMark of Survival";
@@ -116,7 +119,6 @@ public class ProgressionGUI {
                 lore.add("§7No glory. No reward.");
                 lore.add("§8Apparently, that was enough.");
             }
-
             case HUNGER -> {
                 mat = Material.ROTTEN_FLESH;
                 title = "§6Mark of Hunger";
@@ -125,7 +127,6 @@ public class ProgressionGUI {
                 lore.add("§8It waits.");
                 lore.add("§cThis feeling will pass.");
             }
-
             case PERSISTENCE -> {
                 mat = Material.OBSIDIAN;
                 title = "§bMark of Persistence";
@@ -133,7 +134,6 @@ public class ProgressionGUI {
                 lore.add("§7And still showed up.");
                 lore.add("§8Annoyingly impressive.");
             }
-
             case BLOOD -> {
                 mat = Material.REDSTONE;
                 title = "§cMark of Blood";
@@ -142,7 +142,6 @@ public class ProgressionGUI {
                 lore.add("§8That conversation isn't over.");
                 lore.add("§cThe stain will fade.");
             }
-
             case RECOGNITION -> {
                 mat = Material.ENDER_EYE;
                 title = "§dMark of Recognition";
@@ -150,7 +149,6 @@ public class ProgressionGUI {
                 lore.add("§7The world pretends it was planned.");
                 lore.add("§8Congratulations.");
             }
-
             case LOSS -> {
                 mat = Material.SOUL_SAND;
                 title = "§8Mark of Loss";
@@ -159,7 +157,6 @@ public class ProgressionGUI {
                 lore.add("§8You didn't.");
                 lore.add("§cThe weight will lift.");
             }
-
             case TRADE -> {
                 mat = Material.EMERALD;
                 title = "§eMark of Trade";
@@ -168,7 +165,6 @@ public class ProgressionGUI {
                 lore.add("§8Merchants noticed.");
                 lore.add("§cFortune is fickle.");
             }
-
             case COLD -> {
                 mat = Material.BLUE_ICE;
                 title = "§9Mark of Cold";
@@ -176,7 +172,6 @@ public class ProgressionGUI {
                 lore.add("§7It failed.");
                 lore.add("§8It stopped trying.");
             }
-
             case INFLUENCE -> {
                 mat = Material.COMMAND_BLOCK;
                 title = "§6Mark of Influence";
@@ -184,7 +179,6 @@ public class ProgressionGUI {
                 lore.add("§7It listened. Regretfully.");
                 lore.add("§8Power leaves traces.");
             }
-
             case FEAR -> {
                 mat = Material.WITHER_SKELETON_SKULL;
                 title = "§cMark of Fear";
@@ -193,7 +187,6 @@ public class ProgressionGUI {
                 lore.add("§8That memory hasn't.");
                 lore.add("§cFear fades slowly.");
             }
-
             case WITNESS -> {
                 mat = Material.WRITTEN_BOOK;
                 title = "§fMark of the Witness";
@@ -201,7 +194,6 @@ public class ProgressionGUI {
                 lore.add("§7You didn't follow.");
                 lore.add("§8Someone has to remember.");
             }
-
             case FAVOR -> {
                 mat = Material.GLOWSTONE_DUST;
                 title = "§dMark of Favor";
@@ -210,7 +202,6 @@ public class ProgressionGUI {
                 lore.add("§8Don't get used to it.");
                 lore.add("§cLuck never stays.");
             }
-
             default -> {
                 mat = Material.PAPER;
                 title = "§7Unknown Mark";
