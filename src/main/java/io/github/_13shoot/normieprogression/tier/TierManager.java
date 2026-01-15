@@ -34,6 +34,10 @@ public class TierManager {
      */
     public static void forceSet(UUID uuid, Tier tier) {
         tiers.put(uuid, tier);
+
+        // Chronicle hook (Tier reached)
+        io.github._13shoot.normieprogression.chronicle.TierChronicleHook
+                .onTierReached(player, tier);
     }
 
     /* ------------------------------------------------
