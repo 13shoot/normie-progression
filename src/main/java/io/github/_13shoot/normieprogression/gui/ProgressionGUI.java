@@ -1,5 +1,7 @@
 package io.github._13shoot.normieprogression.gui;
 
+import io.github._13shoot.normieprogression.chronicle.ChronicleEntry;
+import io.github._13shoot.normieprogression.chronicle.ChronicleStorage;
 import io.github._13shoot.normieprogression.mark.MarkData;
 import io.github._13shoot.normieprogression.mark.MarkStorage;
 import io.github._13shoot.normieprogression.mark.MarkType;
@@ -62,6 +64,12 @@ public class ProgressionGUI {
         List<ItemStack> marks = buildMarkIcons(player);
         for (int i = 0; i < marks.size() && i < MARK_SLOTS.length; i++) {
             inv.setItem(MARK_SLOTS[i], marks.get(i));
+        }
+
+        // Chronicle icons (NEW)
+        List<ItemStack> chronicles = buildChronicleIcons(player);
+        for (int i = 0; i < chronicles.size() && i < CHRONICLE_SLOTS.length; i++) {
+            inv.setItem(CHRONICLE_SLOTS[i], chronicles.get(i));
         }
 
         player.openInventory(inv);
@@ -247,4 +255,35 @@ public class ProgressionGUI {
         }
         return i;
     }
+    
+    private static List<ItemStack> buildChronicleIcons(Player player) {
+
+        List<ItemStack> list = new ArrayList<>();
+        List<ChronicleEntry> entries =
+                ChronicleStorage.get(player.getUniqueId());
+
+        for (ChronicleEntry e : entries) {
+
+            ItemStack book = new ItemStack(Material.WRITABLE_BOOK);
+            ItemMeta meta = book.getItemMeta();
+            if (meta != null) {
+
+                meta.setDisplayName("§f" + e.getTitle());
+
+                List<String> lore = new ArrayList<>();
+                lore.add("§8A remembered moment.");
+                lore.add(" ");
+
+                for (String line : e.getBody()) {
+                    lore.add("§7" + line);
+                }
+
+                meta.setLore(lore);
+                book.setItemMeta(meta);
+            }
+            list.add(book);
+        }
+        return list;
+    }
+
 }
