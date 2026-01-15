@@ -99,6 +99,12 @@ public class NormieProgression extends JavaPlugin {
          * ------------------------------------------------ */
         Bukkit.getPluginManager().registerEvents(
                 new io.github._13shoot.normieprogression.gui.ProgressionGUIListener(),
+                this
+        );
+        /* ------------------------------------------------
+         * Death Trigger Listener (Mark: BLOOD)
+         * ------------------------------------------------ */
+        Bukkit.getPluginManager().registerEvents(
                 new io.github._13shoot.normieprogression.mark.trigger.DeathTriggerListener(),
                 this
         );
