@@ -80,6 +80,9 @@ public class NormieProgression extends JavaPlugin {
 
             tracker.start();
 
+            io.github._13shoot.normieprogression.mark.trigger.MarkTriggerListeners
+                    .startEconomyWatcher(economy);
+
             getLogger().info("Economy visibility tracking enabled.");
         } else {
             getLogger().warning("Vault economy not found. Economic visibility disabled.");
@@ -108,6 +111,12 @@ public class NormieProgression extends JavaPlugin {
                 new io.github._13shoot.normieprogression.mark.trigger.DeathTriggerListener(),
                 this
         );
+
+        Bukkit.getPluginManager().registerEvents(
+                new io.github._13shoot.normieprogression.mark.trigger.MarkTriggerListeners(),
+                this
+        );
+
 
         /* ------------------------------------------------
          * Command (/np) + TabCompleter
