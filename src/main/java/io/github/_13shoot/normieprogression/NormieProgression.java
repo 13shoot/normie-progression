@@ -112,8 +112,19 @@ public class NormieProgression extends JavaPlugin {
                 this
         );
 
+        /* ------------------------------------------------
+         * TRADE/INFLUENCE/FAVOR)/WITNESS/COLD/HUNGER/FEAR
+         * ------------------------------------------------ */
         Bukkit.getPluginManager().registerEvents(
                 new io.github._13shoot.normieprogression.mark.trigger.MarkTriggerListeners(),
+                this
+        );
+
+        /* ------------------------------------------------
+         * SURVIVAL//PERSISTENCE/RECOGNITION/LOSS
+         * ------------------------------------------------ */
+        Bukkit.getPluginManager().registerEvents(
+                new io.github._13shoot.normieprogression.mark.trigger.MarkTriggerListeners_Advanced(),
                 this
         );
 
