@@ -24,6 +24,10 @@ public class GateService {
                         Tier.T1_RECOGNIZED
                 );
             }
+
+            // Chronicle hook (gate milestone)
+            io.github._13shoot.normieprogression.chronicle.GateChronicleHook
+                    .onGatePassed(player, gate.getId());
         }
     }
 }
