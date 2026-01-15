@@ -37,7 +37,7 @@ public class TierManager {
 
         // Chronicle hook (Tier reached)
         io.github._13shoot.normieprogression.chronicle.TierChronicleHook
-                .onTierReached(player, tier);
+                .onTierReached(id, tier);
     }
 
     /* ------------------------------------------------
