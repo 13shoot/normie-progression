@@ -1,3 +1,11 @@
+package io.github._13shoot.normieprogression.chronicle;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+
 public class ChronicleStorage {
 
     private static final Map<UUID, List<ChronicleEntry>> DATA = new HashMap<>();
@@ -7,7 +15,8 @@ public class ChronicleStorage {
     }
 
     public static boolean has(UUID player, String id) {
-        return get(player).stream().anyMatch(e -> e.getId().equalsIgnoreCase(id));
+        return get(player).stream()
+                .anyMatch(e -> e.getId().equalsIgnoreCase(id));
     }
 
     public static void add(UUID player, ChronicleEntry entry) {
@@ -19,6 +28,10 @@ public class ChronicleStorage {
         DATA.remove(player);
     }
 
+    // --------------------------------------------------
+    // Persistence access
+    // --------------------------------------------------
+
     public static Map<UUID, List<ChronicleEntry>> getAll() {
         return DATA;
     }
@@ -27,4 +40,3 @@ public class ChronicleStorage {
         DATA.put(player, entries);
     }
 }
-
