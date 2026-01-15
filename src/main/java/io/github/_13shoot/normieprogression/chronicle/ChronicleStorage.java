@@ -1,7 +1,3 @@
-package io.github._13shoot.normieprogression.chronicle;
-
-import java.util.*;
-
 public class ChronicleStorage {
 
     private static final Map<UUID, List<ChronicleEntry>> DATA = new HashMap<>();
@@ -22,4 +18,13 @@ public class ChronicleStorage {
     public static void clear(UUID player) {
         DATA.remove(player);
     }
+
+    public static Map<UUID, List<ChronicleEntry>> getAll() {
+        return DATA;
+    }
+
+    public static void set(UUID player, List<ChronicleEntry> entries) {
+        DATA.put(player, entries);
+    }
 }
+
