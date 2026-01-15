@@ -69,19 +69,6 @@ public class MarkTriggerListeners_Advanced implements Listener {
             ));
         }
 
-        // LOSS: heavy pressure (low visibility + past deaths)
-        if (!MarkStorage.hasMark(id, MarkType.LOSS)
-                && v.getTotalVisibility() <= 3.0) {
-
-            MarkStorage.addMark(id, new MarkData(
-                    MarkType.LOSS,
-                    now,
-                    now + (3L * 24 * 60 * 60 * 1000),
-                    now + (24L * 60 * 60 * 1000)
-            ));
-        }
-    }
-
     /* ------------------------------------------------
      * RECOGNITION
      * Advancement bundle completion
