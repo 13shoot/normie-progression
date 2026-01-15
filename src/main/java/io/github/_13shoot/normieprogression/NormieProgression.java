@@ -93,6 +93,14 @@ public class NormieProgression extends JavaPlugin {
 
         reactionManager.registerDefaults();
         reactionManager.start();
+        
+        /* ------------------------------------------------
+         * ProgressionGUIListener (v0.4.0)
+         * ------------------------------------------------ */
+        Bukkit.getPluginManager().registerEvents(
+                new io.github._13shoot.normieprogression.gui.ProgressionGUIListener(),
+                this
+        );
 
         /* ------------------------------------------------
          * Admin command (/np)
