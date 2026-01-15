@@ -14,77 +14,56 @@ public class ProgressionGUI {
 
     public static final String GUI_TITLE = ChatColor.DARK_GRAY + "Your Path So Far";
 
+    private static final int[] PROGRESSION_SLOTS = {2,3,4,5,6,7};
+    private static final int[] MARK_SLOTS = {20,21,22,23,24,25,29,30,31,32,33,34};
+    private static final int[] CHRONICLE_SLOTS = {38,39,40,41,42,43};
+
     public static void open(Player player) {
+
         Inventory inv = Bukkit.createInventory(null, 54, GUI_TITLE);
 
         ItemStack glass = createItem(Material.GRAY_STAINED_GLASS_PANE, " ");
 
-        // Glass frame: column 2 and 9, all rows
-        for (int row = 0; row < 6; row++) {
-            inv.setItem(row * 9 + 1, glass);
-            inv.setItem(row * 9 + 8, glass);
+        int[] glassSlots = {
+                1,8,
+                9,10,11,12,13,14,15,16,17,
+                19,26,
+                27,28,35,
+                36,37,44,
+                45,46,47,48,49,50,51,52,53
+        };
+
+        for (int slot : glassSlots) {
+            inv.setItem(slot, glass);
         }
 
-        // Glass rows: row 2 and row 6
-        for (int col = 0; col < 9; col++) {
-            inv.setItem(9 + col, glass);
-            inv.setItem(45 + col, glass);
-        }
-
-        // Titles with improved icons
-        inv.setItem(0, createTitle(
-                Material.COMPASS,
+        inv.setItem(0, createTitle(Material.COMPASS,
                 ChatColor.GOLD + "Progression:",
-                ChatColor.GRAY + "The path you have already walked."
-        ));
+                ChatColor.GRAY + "The path you have already walked."));
 
-        inv.setItem(18, createTitle(
-                Material.AMETHYST_SHARD,
+        inv.setItem(18, createTitle(Material.AMETHYST_SHARD,
                 ChatColor.GOLD + "Marks:",
-                ChatColor.GRAY + "Traces the world chose to remember."
-        ));
+                ChatColor.GRAY + "Traces the world chose to remember."));
 
-        inv.setItem(36, createTitle(
-                Material.WRITTEN_BOOK,
+        inv.setItem(36, createTitle(Material.WRITTEN_BOOK,
                 ChatColor.LIGHT_PURPLE + "Chronicle:",
-                ChatColor.GRAY + "Fragments of your lived history."
-        ));
+                ChatColor.GRAY + "Fragments of your lived history."));
 
-        // Placeholder papers
-        ItemStack progressionEmpty = createPlaceholder(
-                Material.PAPER,
+        ItemStack progressionEmpty = createPlaceholder(Material.PAPER,
                 ChatColor.YELLOW + "Progression",
-                ChatColor.GRAY + "Progression still empty..."
-        );
+                ChatColor.GRAY + "Progression still empty...");
 
-        ItemStack markEmpty = createPlaceholder(
-                Material.PAPER,
+        ItemStack markEmpty = createPlaceholder(Material.PAPER,
                 ChatColor.YELLOW + "Marks",
-                ChatColor.GRAY + "Marks still empty..."
-        );
+                ChatColor.GRAY + "Marks still empty...");
 
-        ItemStack chronicleEmpty = createPlaceholder(
-                Material.PAPER,
+        ItemStack chronicleEmpty = createPlaceholder(Material.PAPER,
                 ChatColor.YELLOW + "Chronicle",
-                ChatColor.GRAY + "Empty..."
-        );
+                ChatColor.GRAY + "Empty...");
 
-        // Fill progression area
-        for (int slot = 2; slot <= 7; slot++) {
-            inv.setItem(slot, progressionEmpty);
-        }
-
-        // Fill mark area (row 3-4)
-        for (int row = 3; row <= 4; row++) {
-            for (int col = 2; col <= 7; col++) {
-                inv.setItem(row * 9 + col, markEmpty);
-            }
-        }
-
-        // Fill chronicle area
-        for (int col = 2; col <= 7; col++) {
-            inv.setItem(5 * 9 + col, chronicleEmpty);
-        }
+        for (int slot : PROGRESSION_SLOTS) inv.setItem(slot, progressionEmpty);
+        for (int slot : MARK_SLOTS) inv.setItem(slot, markEmpty);
+        for (int slot : CHRONICLE_SLOTS) inv.setItem(slot, chronicleEmpty);
 
         player.openInventory(inv);
     }
