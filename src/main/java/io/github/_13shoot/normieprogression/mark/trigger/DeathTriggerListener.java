@@ -3,10 +3,10 @@ package io.github._13shoot.normieprogression.mark.trigger;
 import io.github._13shoot.normieprogression.mark.MarkData;
 import io.github._13shoot.normieprogression.mark.MarkStorage;
 import io.github._13shoot.normieprogression.mark.MarkType;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.PlayerDeathEvent;
-import org.bukkit.entity.Player;
 
 import java.util.*;
 
@@ -32,8 +32,7 @@ public class DeathTriggerListener implements Listener {
         }
 
         /* ---------------------------------------------
-         * BLOOD mark trigger
-         * - 2 deaths within 10 minutes
+         * Track death timestamps
          * --------------------------------------------- */
         Deque<Long> times = DEATHS.computeIfAbsent(id, k -> new ArrayDeque<>());
         times.addLast(now);
@@ -42,13 +41,34 @@ public class DeathTriggerListener implements Listener {
             times.pollFirst();
         }
 
+        /* ---------------------------------------------
+         * BLOOD mark
+         * - 2 deaths within 10 minutes
+         * --------------------------------------------- */
         if (times.size() >= 2 && !MarkStorage.hasMark(id, MarkType.BLOOD)) {
 
-            long expiresAt = now + (3L * 24 * 60 * 60 * 1000); // 3 days
+            long expiresAt = now + (3L * 24 * 60 * 60 * 1000);   // 3 days
             long cooldownUntil = now + (24L * 60 * 60 * 1000); // 1 day
 
             MarkStorage.addMark(id, new MarkData(
                     MarkType.BLOOD,
+                    now,
+                    expiresAt,
+                    cooldownUntil
+            ));
+        }
+
+        /* ---------------------------------------------
+         * LOSS mark
+         * - Any death (single event based)
+         * --------------------------------------------- */
+        if (!MarkStorage.hasMark(id, MarkType.LOSS)) {
+
+            long expiresAt = now + (3L * 24 * 60 * 60 * 1000);   // 3 days
+            long cooldownUntil = now + (24L * 60 * 60 * 1000); // 1 day
+
+            MarkStorage.addMark(id, new MarkData(
+                    MarkType.LOSS,
                     now,
                     expiresAt,
                     cooldownUntil
