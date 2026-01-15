@@ -1,5 +1,8 @@
 package io.github._13shoot.normieprogression.gui;
 
+import io.github._13shoot.normieprogression.mark.MarkData;
+import io.github._13shoot.normieprogression.mark.MarkStorage;
+import io.github._13shoot.normieprogression.mark.MarkType;
 import io.github._13shoot.normieprogression.tier.Tier;
 import io.github._13shoot.normieprogression.tier.TierManager;
 import io.github._13shoot.normieprogression.visibility.VisibilityData;
@@ -12,10 +15,7 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 public class ProgressionGUI {
 
@@ -72,55 +72,59 @@ public class ProgressionGUI {
         for (int slot : MARK_SLOTS) inv.setItem(slot, markEmpty);
         for (int slot : CHRONICLE_SLOTS) inv.setItem(slot, chronicleEmpty);
 
-        // -------------------------------------------------
+        // ------------------------------
         // Step 2A: Progression Icons
-        // -------------------------------------------------
+        // ------------------------------
         List<ItemStack> progressionIcons = buildProgressionIcons(player);
-
         for (int i = 0; i < progressionIcons.size() && i < PROGRESSION_SLOTS.length; i++) {
             inv.setItem(PROGRESSION_SLOTS[i], progressionIcons.get(i));
+        }
+
+        // ------------------------------
+        // Step 2B-2: Mark Icons
+        // ------------------------------
+        List<ItemStack> markIcons = buildMarkIcons(player);
+        for (int i = 0; i < markIcons.size() && i < MARK_SLOTS.length; i++) {
+            inv.setItem(MARK_SLOTS[i], markIcons.get(i));
         }
 
         player.openInventory(inv);
     }
 
+    // -------------------------------------------------
+    // Progression Icons (unchanged)
+    // -------------------------------------------------
     private static List<ItemStack> buildProgressionIcons(Player player) {
 
         List<ItemStack> icons = new ArrayList<>();
         UUID id = player.getUniqueId();
 
         Tier tier = TierManager.getTier(id);
-        VisibilityData v = VisibilityManager.get(id);
 
-        // Stage 1: Seen by the world
         if (tier != Tier.T0_UNSEEN) {
             icons.add(icon(Material.COMPASS,
                     ChatColor.WHITE + "A Noticed Presence",
                     ChatColor.GRAY + "The world no longer overlooks you."));
         }
 
-        // Stage 2: Recognized existence
         if (tier.ordinal() >= Tier.T1_RECOGNIZED.ordinal()) {
             icons.add(icon(Material.ECHO_SHARD,
                     ChatColor.GRAY + "Echoes Left Behind",
                     ChatColor.DARK_GRAY + "Your actions leave traces."));
         }
 
-        // Stage 3: Known name
         if (tier.ordinal() >= Tier.T2_ACKNOWLEDGED.ordinal()) {
             icons.add(icon(Material.NAME_TAG,
                     ChatColor.GOLD + "A Name Remembered",
                     ChatColor.GRAY + "Some remember who you are."));
         }
 
-        // Stage 4: World response
         if (tier.ordinal() >= Tier.T3_RESPONDED.ordinal()) {
             icons.add(icon(Material.NETHER_STAR,
                     ChatColor.LIGHT_PURPLE + "The World Responds",
                     ChatColor.GRAY + "Your presence carries weight."));
         }
 
-        // Stage 5: Part of history
         if (tier.ordinal() >= Tier.T4_REMEMBERED.ordinal()) {
             icons.add(icon(Material.AMETHYST_SHARD,
                     ChatColor.AQUA + "Part of the Record",
@@ -128,6 +132,72 @@ public class ProgressionGUI {
         }
 
         return icons;
+    }
+
+    // -------------------------------------------------
+    // Mark Icons (NEW)
+    // -------------------------------------------------
+    private static List<ItemStack> buildMarkIcons(Player player) {
+
+        List<ItemStack> icons = new ArrayList<>();
+        long now = System.currentTimeMillis();
+
+        for (MarkData data : MarkStorage.getMarks(player.getUniqueId())) {
+
+            MarkType type = data.getType();
+            ItemStack item = createMarkItem(type, data, now);
+            icons.add(item);
+        }
+
+        return icons;
+    }
+
+    private static ItemStack createMarkItem(MarkType type, MarkData data, long now) {
+
+        Material mat;
+        ChatColor titleColor;
+
+        if (type.isPermanent()) {
+            mat = Material.AMETHYST_SHARD;
+            titleColor = ChatColor.AQUA;
+        } else {
+            mat = Material.CLOCK;
+            titleColor = ChatColor.GOLD;
+        }
+
+        String title = titleColor + formatName(type.name());
+
+        List<String> lore = new ArrayList<>();
+        lore.add(ChatColor.GRAY + "A mark carried by your actions.");
+
+        if (!type.isPermanent()) {
+            lore.add(ChatColor.DARK_RED + "Its presence feels temporary.");
+            if (data.isExpired(now)) {
+                lore.add(ChatColor.RED + "It is fading away.");
+            } else {
+                lore.add(ChatColor.RED + "Time is running out.");
+            }
+        } else {
+            lore.add(ChatColor.DARK_GRAY + "This mark will not leave you.");
+        }
+
+        ItemStack item = new ItemStack(mat);
+        ItemMeta meta = item.getItemMeta();
+        if (meta != null) {
+            meta.setDisplayName(title);
+            meta.setLore(lore);
+            item.setItemMeta(meta);
+        }
+
+        return item;
+    }
+
+    // -------------------------------------------------
+    // Helpers
+    // -------------------------------------------------
+    private static String formatName(String raw) {
+        return raw.substring(0,1).toUpperCase() +
+                raw.substring(1).toLowerCase().replace("_", " ");
     }
 
     private static ItemStack icon(Material mat, String title, String lore) {
