@@ -93,9 +93,9 @@ public class NormieProgression extends JavaPlugin {
 
         reactionManager.registerDefaults();
         reactionManager.start();
-        
+
         /* ------------------------------------------------
-         * ProgressionGUIListener (v0.4.0)
+         * Progression GUI Listener
          * ------------------------------------------------ */
         Bukkit.getPluginManager().registerEvents(
                 new io.github._13shoot.normieprogression.gui.ProgressionGUIListener(),
@@ -103,10 +103,12 @@ public class NormieProgression extends JavaPlugin {
         );
 
         /* ------------------------------------------------
-         * Admin command (/np)
+         * Command (/np) + TabCompleter
          * ------------------------------------------------ */
         if (getCommand("np") != null) {
-            getCommand("np").setExecutor(new ProgressionCommand());
+            ProgressionCommand cmd = new ProgressionCommand();
+            getCommand("np").setExecutor(cmd);
+            getCommand("np").setTabCompleter(cmd);
         }
 
         getLogger().info("NormieProgression enabled.");
