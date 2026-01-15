@@ -1,5 +1,6 @@
 package io.github._13shoot.normieprogression.command;
 
+import io.github._13shoot.normieprogression.gui.ProgressionGUI;
 import io.github._13shoot.normieprogression.gate.GateRegistry;
 import io.github._13shoot.normieprogression.gate.GateService;
 import io.github._13shoot.normieprogression.tier.Tier;
@@ -18,6 +19,19 @@ public class ProgressionCommand implements CommandExecutor {
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+        // Player GUI (available to everyone)
+        if (args.length >= 1 && args[0].equalsIgnoreCase("gui")) {
+
+            if (!(sender instanceof Player)) {
+                sender.sendMessage("§cPlayers only.");
+                return true;
+            }
+
+            Player player = (Player) sender;
+            ProgressionGUI.open(player);
+            return true;
+        }
+
 
         if (!sender.isOp()) {
             sender.sendMessage("§cAdmin only.");
