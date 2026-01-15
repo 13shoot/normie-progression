@@ -4,10 +4,22 @@ import io.github._13shoot.normieprogression.tier.Tier;
 import io.github._13shoot.normieprogression.tier.TierManager;
 import org.bukkit.entity.Player;
 
+import java.util.Map;
+
 public class GateService {
 
     private GateService() {
     }
+
+    // -------------------------------------------------
+    // Gate → Tier mapping (locked)
+    // -------------------------------------------------
+    private static final Map<String, Tier> GATE_TIER_MAP = Map.of(
+            "recognition", Tier.T1_RECOGNIZED,
+            "acknowledgement", Tier.T2_ACKNOWLEDGED,
+            "responded", Tier.T3_RESPONDED,
+            "remembered", Tier.T4_REMEMBERED
+    );
 
     public static void evaluate(Player player) {
 
@@ -17,11 +29,12 @@ public class GateService {
                 continue;
             }
 
-            // Gate_01 → Tier 1
-            if (gate.getId().equals("recognition")) {
+            // Promote tier if mapped
+            Tier targetTier = GATE_TIER_MAP.get(gate.getId());
+            if (targetTier != null) {
                 TierManager.promote(
                         player.getUniqueId(),
-                        Tier.T1_RECOGNIZED
+                        targetTier
                 );
             }
 
