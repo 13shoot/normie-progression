@@ -15,7 +15,7 @@ import java.util.*;
 public class DeathTriggerListener implements Listener {
 
     // Track recent deaths in game-days
-    private static final Map<UUID, Deque<Long>> DEATH_DAYS = new HashMap<>();
+    private static final Map<UUID, Deque<int>> DEATH_DAYS = new HashMap<>();
 
     @EventHandler
     public void onDeath(PlayerDeathEvent event) {
@@ -26,7 +26,7 @@ public class DeathTriggerListener implements Listener {
         VisibilityData v = VisibilityManager.get(id);
         if (v == null) return;
 
-        long nowDay = v.getDaysAlive();
+        int nowDay = v.getDaysAlive();
 
         /* ---------------------------------------------
          * Remove all temporary marks on death
@@ -40,7 +40,7 @@ public class DeathTriggerListener implements Listener {
         /* ---------------------------------------------
          * Track death history (by game days)
          * --------------------------------------------- */
-        Deque<Long> days = DEATH_DAYS.computeIfAbsent(id, k -> new ArrayDeque<>());
+        Deque<int> days = DEATH_DAYS.computeIfAbsent(id, k -> new ArrayDeque<>());
         days.addLast(nowDay);
 
         while (!days.isEmpty() && nowDay - days.peekFirst() > 1) {
