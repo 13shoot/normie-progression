@@ -1,6 +1,7 @@
 package io.github._13shoot.normieprogression.visibility;
 
 import io.github._13shoot.normieprogression.gate.GateService;
+import io.github._13shoot.normieprogression.mark.MarkStorage;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -13,7 +14,6 @@ public class VisibilityListener implements Listener {
     private final JavaPlugin plugin;
 
     // Decay factors (LOCKED FOR v0.2.3)
-    // days: small penalty, economy: stronger penalty
     private static final double DAYS_DECAY_FACTOR = 0.90;     // -10%
     private static final double ECON_DECAY_FACTOR = 0.70;     // -30%
 
@@ -29,9 +29,19 @@ public class VisibilityListener implements Listener {
                 plugin,
                 () -> {
                     for (Player p : Bukkit.getOnlinePlayers()) {
+
                         VisibilityData d =
                                 VisibilityManager.getOrCreate(p.getUniqueId());
+
+                        // 1️⃣ increment in-game day
                         d.incrementDaysAlive();
+
+                        int currentDay = d.getDaysAlive();
+
+                        // 2️⃣ CLEANUP expired marks (🔥 สำคัญที่สุด)
+                        MarkStorage.cleanupExpired(currentDay);
+
+                        // 3️⃣ re-evaluate gates
                         GateService.evaluate(p);
                     }
                 },
@@ -52,8 +62,11 @@ public class VisibilityListener implements Listener {
         // Existing behavior
         d.resetDaysAlive();
 
-        // NEW: visibility decay on death (v0.2.3)
+        // Visibility decay (v0.2.3)
         d.decayOnDeath(DAYS_DECAY_FACTOR, ECON_DECAY_FACTOR);
+
+        // Optional but safe: cleanup again after reset
+        MarkStorage.cleanupExpired(d.getDaysAlive());
 
         GateService.evaluate(p);
     }
