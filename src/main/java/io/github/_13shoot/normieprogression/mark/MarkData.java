@@ -7,18 +7,15 @@ public class MarkData {
     // in-game days
     private int obtainedAt;
     private int expiresAt;     // -1 = permanent
-    private int cooldownUntil;
 
     public MarkData(
             MarkType type,
             int obtainedAt,
             int expiresAt,
-            int cooldownUntil
     ) {
         this.type = type;
         this.obtainedAt = obtainedAt;
         this.expiresAt = expiresAt;
-        this.cooldownUntil = cooldownUntil;
     }
 
     public MarkType getType() {
@@ -35,10 +32,6 @@ public class MarkData {
                 && currentDay >= expiresAt;
     }
 
-    public boolean isOnCooldown(int currentDay) {
-        return currentDay < cooldownUntil;
-    }
-
     public int getObtainedDay() {
         return obtainedAt;
     }
@@ -47,9 +40,6 @@ public class MarkData {
         return expiresAt;
     }
 
-    public int getCooldownUntilDay() {
-        return cooldownUntil;
-    }
 
     public int getExpiresAt() {
         return expiresAt;
