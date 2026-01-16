@@ -281,33 +281,34 @@ public class ProgressionCommand implements CommandExecutor, TabCompleter {
 
     private void handleTier(CommandSender s, String[] a) {
 
-    if (a.length < 3) {
-        s.sendMessage("§c/np tier <get|set|reset> <player>");
-        return;
-    }
+        if (a.length < 3) {
+            s.sendMessage("§c/np tier <get|set|reset> <player>");
+            return;
+        }
 
-    Player p = Bukkit.getPlayer(a[a.length - 1]);
-    if (p == null) {
-        s.sendMessage("§cPlayer not found.");
-        return;
-    }
+        Player p = Bukkit.getPlayer(a[a.length - 1]);
+        if (p == null) {
+            s.sendMessage("§cPlayer not found.");
+            return;
+        }
 
-    switch (a[1].toLowerCase()) {
+        switch (a[1].toLowerCase()) {
 
-        case "get" -> {
-            s.sendMessage("§6Tier of " + p.getName() + ": §f"
+            case "get" -> {
+                s.sendMessage("§6Tier of " + p.getName() + ": §f"
                     + TierManager.getTier(p.getUniqueId()));
-        }
+            }
 
-        case "set" -> {
-            Tier t = Tier.valueOf(a[2].toUpperCase());
-            TierManager.setTier(p.getUniqueId(), t);
-            s.sendMessage("§aTier set.");
-        }
+            case "set" -> {
+                Tier t = Tier.valueOf(a[2].toUpperCase());
+                TierManager.setTier(p.getUniqueId(), t);
+                s.sendMessage("§aTier set.");
+            }
 
-        case "reset" -> {
-            TierManager.resetTier(p.getUniqueId());
-            s.sendMessage("§cTier reset.");
+            case "reset" -> {
+                TierManager.resetTier(p.getUniqueId());
+                s.sendMessage("§cTier reset.");
+            }
         }
     }
 
