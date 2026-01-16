@@ -5,13 +5,13 @@ public class MarkData {
     private final MarkType type;
 
     // in-game days
-    private int obtainedAt;
-    private int expiresAt;     // -1 = permanent
+    private final int obtainedAt;
+    private final int expiresAt; // -1 = permanent
 
     public MarkData(
             MarkType type,
             int obtainedAt,
-            int expiresAt,
+            int expiresAt
     ) {
         this.type = type;
         this.obtainedAt = obtainedAt;
@@ -37,11 +37,6 @@ public class MarkData {
     }
 
     public int getExpiresDay() {
-        return expiresAt;
-    }
-
-
-    public int getExpiresAt() {
         return expiresAt;
     }
 }
