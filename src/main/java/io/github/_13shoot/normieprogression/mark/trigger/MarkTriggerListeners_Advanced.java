@@ -6,6 +6,7 @@ import io.github._13shoot.normieprogression.mark.MarkType;
 import io.github._13shoot.normieprogression.visibility.VisibilityData;
 import io.github._13shoot.normieprogression.visibility.VisibilityManager;
 import org.bukkit.Bukkit;
+import org.bukkit.NamespacedKey;
 import org.bukkit.advancement.Advancement;
 import org.bukkit.advancement.AdvancementProgress;
 import org.bukkit.entity.Player;
@@ -14,14 +15,15 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerAdvancementDoneEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 
-import java.util.*;
+import java.util.List;
+import java.util.UUID;
 
 public class MarkTriggerListeners_Advanced implements Listener {
 
-    // -------------------------------------------------
-    // RECOGNITION
-    // Advancement bundle (locked list)
-    // -------------------------------------------------
+    /* -------------------------------------------------
+     * RECOGNITION
+     * Advancement bundle (LOCKED LIST)
+     * ------------------------------------------------- */
     private static final List<String> REQUIRED_ADVANCEMENTS = List.of(
             "minecraft:story/mine_diamond",
             "minecraft:nether/root",
@@ -35,10 +37,10 @@ public class MarkTriggerListeners_Advanced implements Listener {
             "minecraft:end/find_end_city"
     );
 
-    /* ------------------------------------------------
-     * SURVIVAL + PERSISTENCE
-     * Checked on join (state based)
-     * ------------------------------------------------ */
+    /* -------------------------------------------------
+     * SURVIVAL + PERSISTENCE (PERMANENT)
+     * State-based check on join
+     * ------------------------------------------------- */
     @EventHandler
     public void onJoin(PlayerJoinEvent e) {
 
@@ -50,31 +52,29 @@ public class MarkTriggerListeners_Advanced implements Listener {
 
         int day = v.getDaysAlive();
 
-        // SURVIVAL: 30+ in-game days
+        // SURVIVAL: survived 30+ in-game days
         if (day >= 30 && !MarkStorage.hasMark(id, MarkType.SURVIVAL)) {
             MarkStorage.addMark(id, new MarkData(
                     MarkType.SURVIVAL,
                     day,
-                    -1,
-                    0
+                    -1
             ));
         }
 
-        // PERSISTENCE: 90+ in-game days
+        // PERSISTENCE: survived 90+ in-game days
         if (day >= 90 && !MarkStorage.hasMark(id, MarkType.PERSISTENCE)) {
             MarkStorage.addMark(id, new MarkData(
                     MarkType.PERSISTENCE,
                     day,
-                    -1,
-                    0
+                    -1
             ));
         }
     }
 
-    /* ------------------------------------------------
-     * RECOGNITION
-     * Advancement bundle completion
-     * ------------------------------------------------ */
+    /* -------------------------------------------------
+     * RECOGNITION (PERMANENT)
+     * Full advancement bundle completion
+     * ------------------------------------------------- */
     @EventHandler
     public void onAdvancement(PlayerAdvancementDoneEvent e) {
 
@@ -86,12 +86,12 @@ public class MarkTriggerListeners_Advanced implements Listener {
         for (String key : REQUIRED_ADVANCEMENTS) {
 
             Advancement adv = Bukkit.getAdvancement(
-                    org.bukkit.NamespacedKey.fromString(key)
+                    NamespacedKey.fromString(key)
             );
             if (adv == null) return;
 
-            AdvancementProgress prog = p.getAdvancementProgress(adv);
-            if (!prog.isDone()) return;
+            AdvancementProgress progress = p.getAdvancementProgress(adv);
+            if (!progress.isDone()) return;
         }
 
         int day = VisibilityManager.get(id).getDaysAlive();
@@ -99,8 +99,7 @@ public class MarkTriggerListeners_Advanced implements Listener {
         MarkStorage.addMark(id, new MarkData(
                 MarkType.RECOGNITION,
                 day,
-                -1,
-                0
+                -1
         ));
     }
 }
