@@ -42,7 +42,6 @@ public class TierManager {
 
     public static void resetTier(UUID uuid) {
         tiers.remove(uuid);
-
     }
 
     /* ------------------------------------------------
