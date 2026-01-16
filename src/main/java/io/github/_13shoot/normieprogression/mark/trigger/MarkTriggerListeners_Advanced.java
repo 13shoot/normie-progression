@@ -44,32 +44,33 @@ public class MarkTriggerListeners_Advanced implements Listener {
 
         Player p = e.getPlayer();
         UUID id = p.getUniqueId();
+
         VisibilityData v = VisibilityManager.get(id);
         if (v == null) return;
 
-        long now = System.currentTimeMillis();
+        long day = v.getDaysAlive();
 
-        // SURVIVAL: basic world endurance (30+ days alive)
-        if (v.getDaysAlive() >= 30 && !MarkStorage.hasMark(id, MarkType.SURVIVAL)) {
+        // SURVIVAL: 30+ in-game days
+        if (day >= 30 && !MarkStorage.hasMark(id, MarkType.SURVIVAL)) {
             MarkStorage.addMark(id, new MarkData(
                     MarkType.SURVIVAL,
-                    now,
+                    day,
                     -1,
                     0
             ));
         }
 
-        // PERSISTENCE: long-term recovery & continuation (90+ days alive)
-        if (v.getDaysAlive() >= 90 && !MarkStorage.hasMark(id, MarkType.PERSISTENCE)) {
+        // PERSISTENCE: 90+ in-game days
+        if (day >= 90 && !MarkStorage.hasMark(id, MarkType.PERSISTENCE)) {
             MarkStorage.addMark(id, new MarkData(
                     MarkType.PERSISTENCE,
-                    now,
+                    day,
                     -1,
                     0
             ));
         }
     }
-    
+
     /* ------------------------------------------------
      * RECOGNITION
      * Advancement bundle completion
@@ -84,18 +85,20 @@ public class MarkTriggerListeners_Advanced implements Listener {
 
         for (String key : REQUIRED_ADVANCEMENTS) {
 
-            Advancement adv = Bukkit.getAdvancement(org.bukkit.NamespacedKey.fromString(key));
+            Advancement adv = Bukkit.getAdvancement(
+                    org.bukkit.NamespacedKey.fromString(key)
+            );
             if (adv == null) return;
 
             AdvancementProgress prog = p.getAdvancementProgress(adv);
-            if (!prog.isDone()) {
-                return;
-            }
+            if (!prog.isDone()) return;
         }
+
+        long day = VisibilityManager.get(id).getDaysAlive();
 
         MarkStorage.addMark(id, new MarkData(
                 MarkType.RECOGNITION,
-                System.currentTimeMillis(),
+                day,
                 -1,
                 0
         ));
