@@ -32,8 +32,12 @@ public class TierManager {
      * Force set tier (admin only).
      * This bypasses progression rules.
      */
-    public static void forceSet(UUID uuid, Tier tier) {
-        tiers.put(uuid, tier);
+    public static void setTier(UUID uuid, Tier tier) {
+        DATA.put(uuid, tier);
+    }
+
+    public static void resetTier(UUID uuid) {
+        DATA.remove(uuid);
 
         // Chronicle hook (Tier reached)
         io.github._13shoot.normieprogression.chronicle.TierChronicleHook
