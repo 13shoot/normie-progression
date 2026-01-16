@@ -183,6 +183,28 @@ public class ProgressionCommand implements CommandExecutor, TabCompleter {
     }
 
     /* =========================================================
+     * TIER
+     * ========================================================= */
+    private void handleTier(CommandSender s, String[] a) {
+
+        if (a.length < 3) {
+            s.sendMessage("§c/np tier get <player>");
+            return;
+        }
+
+        Player p = Bukkit.getPlayer(a[a.length - 1]);
+        if (p == null) {
+            s.sendMessage("§cPlayer not found.");
+            return;
+        }
+
+        if (a[1].equalsIgnoreCase("get")) {
+            s.sendMessage("§6Tier of " + p.getName() + ": §f"
+                    + TierManager.getTier(p.getUniqueId()));
+        }
+    }
+
+    /* =========================================================
      * MARK
      * ========================================================= */
     private void handleMark(CommandSender s, String[] a) {
