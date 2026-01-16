@@ -98,7 +98,7 @@ public class ProgressionCommand implements CommandExecutor, TabCompleter {
         }
 
         UUID id = target.getUniqueId();
-        long nowDay = VisibilityManager.get(id).getDaysAlive();
+        int nowDay = VisibilityManager.get(id).getDaysAlive();
 
         switch (args[1].toLowerCase()) {
 
@@ -118,7 +118,7 @@ public class ProgressionCommand implements CommandExecutor, TabCompleter {
                     return;
                 }
 
-                long expires = type.isPermanent() ? -1 : nowDay + 3;
+                int expires = type.isPermanent() ? -1 : nowDay + 3;
                 MarkStorage.addMark(id, new MarkData(
                         type,
                         nowDay,
@@ -132,7 +132,7 @@ public class ProgressionCommand implements CommandExecutor, TabCompleter {
             case "addall" -> {
                 for (MarkType t : MarkType.values()) {
                     if (!MarkStorage.hasMark(id, t)) {
-                        long expires = t.isPermanent() ? -1 : nowDay + 3;
+                        int expires = t.isPermanent() ? -1 : nowDay + 3;
                         MarkStorage.addMark(id, new MarkData(
                                 t,
                                 nowDay,
