@@ -12,8 +12,8 @@ import java.util.*;
  * MarkStorage
  *
  * - Handles in-memory mark state
+ * - Handles cooldowns (game-day based)
  * - Persists marks to marks.yml
- * - Uses GAME DAYS only (not real time)
  */
 public class MarkStorage {
 
@@ -75,10 +75,10 @@ public class MarkStorage {
 
     public static void setCooldown(UUID player, MarkType type, int untilDay) {
         COOLDOWNS
-            .computeIfAbsent(player, k -> new EnumMap<>(MarkType.class))
-            .put(type, untilDay);
+                .computeIfAbsent(player, k -> new EnumMap<>(MarkType.class))
+                .put(type, untilDay);
     }
-    
+
     /* =================================================
      * CLEANUP (GAME DAY BASED)
      * ================================================= */
@@ -86,11 +86,6 @@ public class MarkStorage {
 
         for (Map<MarkType, MarkData> marks : DATA.values()) {
             marks.values().removeIf(mark -> mark.isExpired(currentDay));
-        }
-
-        // cleanup cooldowns
-        for (Map<MarkType, Integer> cds : COOLDOWNS.values()) {
-            cds.entrySet().removeIf(e -> e.getValue() <= currentDay);
         }
     }
 
@@ -124,6 +119,7 @@ public class MarkStorage {
     public static void loadAll() {
 
         DATA.clear();
+        COOLDOWNS.clear();
 
         if (!config.contains("players")) return;
 
@@ -144,7 +140,7 @@ public class MarkStorage {
                 marks.put(type, new MarkData(
                         type,
                         obtained,
-                        expires,
+                        expires
                 ));
             }
 
