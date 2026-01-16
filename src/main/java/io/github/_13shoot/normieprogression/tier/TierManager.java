@@ -34,14 +34,15 @@ public class TierManager {
      */
     public static void setTier(UUID uuid, Tier tier) {
         tiers.put(uuid, tier);
+        
+        // Chronicle hook (Tier reached)
+        io.github._13shoot.normieprogression.chronicle.TierChronicleHook
+                .onTierReached(uuid, tier);
     }
 
     public static void resetTier(UUID uuid) {
         tiers.remove(uuid);
 
-        // Chronicle hook (Tier reached)
-        io.github._13shoot.normieprogression.chronicle.TierChronicleHook
-                .onTierReached(uuid, tier);
     }
 
     /* ------------------------------------------------
