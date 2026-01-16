@@ -21,6 +21,16 @@ import java.util.*;
 public class ProgressionCommand implements CommandExecutor, TabCompleter {
 
     @Override
+    public List<String> onTabComplete(
+            CommandSender sender,
+            Command command,
+            String alias,
+            String[] args
+    ) {
+        return List.of();
+    }
+
+    @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
 
         // Player GUI
