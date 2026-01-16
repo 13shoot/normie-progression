@@ -109,6 +109,13 @@ public class MarkStorage {
 
                     // 🔔 notify expire
                     MarkNotifier.notifyLoss(uuid, mark.getType());
+
+                    // ✅ CLEAR COOLDOWN
+                    Map<MarkType, Integer> cd = COOLDOWNS.get(uuid);
+                    if (cd != null) {
+                        cd.remove(mark.getType());
+                        if (cd.isEmpty()) {
+                            COOLDOWNS.remove(uuid);
                 }
             }
         }
