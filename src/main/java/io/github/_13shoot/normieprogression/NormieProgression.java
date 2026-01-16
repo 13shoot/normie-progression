@@ -6,6 +6,7 @@ import io.github._13shoot.normieprogression.gate.impl.AcknowledgementGate;
 import io.github._13shoot.normieprogression.gate.impl.RecognitionGate;
 import io.github._13shoot.normieprogression.gate.impl.RememberedGate;
 import io.github._13shoot.normieprogression.gate.impl.RespondedGate;
+import io.github._13shoot.normieprogression.mark.MarkStorage;
 import io.github._13shoot.normieprogression.placeholder.ProgressionPlaceholder;
 import io.github._13shoot.normieprogression.tier.TierStorage;
 import io.github._13shoot.normieprogression.visibility.EconomyBalanceTracker;
@@ -17,6 +18,12 @@ import net.milkbowl.vault.economy.Economy;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 
+/**
+ * NormieProgression
+ *
+ * Core plugin bootstrap.
+ * This class ONLY wires systems together.
+ */
 public class NormieProgression extends JavaPlugin {
 
     private VisibilityStorage visibilityStorage;
@@ -61,6 +68,21 @@ public class NormieProgression extends JavaPlugin {
         tierStorage.loadAll();
 
         /* ------------------------------------------------
+         * Mark persistence (marks.yml)
+         * ------------------------------------------------ */
+        MarkStorage.init(this);
+
+        /* ------------------------------------------------
+         * Chronicle persistence (chronicle.yml)
+         * (Implementation comes later – hook prepared)
+         * ------------------------------------------------ */
+        try {
+            io.github._13shoot.normieprogression.chronicle.ChronicleStorage.init(this);
+        } catch (Throwable ignored) {
+            // Chronicle not fully implemented yet – safe to ignore for now
+        }
+
+        /* ------------------------------------------------
          * Register Gates
          * ------------------------------------------------ */
         GateRegistry.register(new RecognitionGate());
@@ -89,7 +111,7 @@ public class NormieProgression extends JavaPlugin {
         }
 
         /* ------------------------------------------------
-         * World Reaction (v0.3.0)
+         * World Reaction
          * ------------------------------------------------ */
         WorldReactionManager reactionManager =
                 new WorldReactionManager(this);
@@ -98,39 +120,33 @@ public class NormieProgression extends JavaPlugin {
         reactionManager.start();
 
         /* ------------------------------------------------
-         * Progression GUI Listener
+         * GUI Listener
          * ------------------------------------------------ */
         Bukkit.getPluginManager().registerEvents(
                 new io.github._13shoot.normieprogression.gui.ProgressionGUIListener(),
                 this
         );
+
         /* ------------------------------------------------
-         * Death Trigger Listener (Mark: BLOOD)
+         * Mark Trigger Listeners
          * ------------------------------------------------ */
         Bukkit.getPluginManager().registerEvents(
                 new io.github._13shoot.normieprogression.mark.trigger.DeathTriggerListener(),
                 this
         );
 
-        /* ------------------------------------------------
-         * TRADE/INFLUENCE/FAVOR)/WITNESS/COLD/HUNGER/FEAR
-         * ------------------------------------------------ */
         Bukkit.getPluginManager().registerEvents(
                 new io.github._13shoot.normieprogression.mark.trigger.MarkTriggerListeners(),
                 this
         );
 
-        /* ------------------------------------------------
-         * SURVIVAL//PERSISTENCE/RECOGNITION/LOSS
-         * ------------------------------------------------ */
         Bukkit.getPluginManager().registerEvents(
                 new io.github._13shoot.normieprogression.mark.trigger.MarkTriggerListeners_Advanced(),
                 this
         );
 
-
         /* ------------------------------------------------
-         * Command (/np) + TabCompleter
+         * Command (/np)
          * ------------------------------------------------ */
         if (getCommand("np") != null) {
             ProgressionCommand cmd = new ProgressionCommand();
@@ -149,23 +165,41 @@ public class NormieProgression extends JavaPlugin {
     }
 
     /* ------------------------------------------------
-     * Admin helpers
+     * Admin helpers (force save/load)
      * ------------------------------------------------ */
     public void forceSave() {
+
         if (visibilityStorage != null) {
             visibilityStorage.saveAll();
         }
+
         if (tierStorage != null) {
             tierStorage.saveAll();
+        }
+
+        MarkStorage.saveAll();
+
+        try {
+            io.github._13shoot.normieprogression.chronicle.ChronicleStorage.saveAll();
+        } catch (Throwable ignored) {
         }
     }
 
     public void forceLoad() {
+
         if (visibilityStorage != null) {
             visibilityStorage.loadAll();
         }
+
         if (tierStorage != null) {
             tierStorage.loadAll();
+        }
+
+        MarkStorage.loadAll();
+
+        try {
+            io.github._13shoot.normieprogression.chronicle.ChronicleStorage.loadAll();
+        } catch (Throwable ignored) {
         }
     }
 }
