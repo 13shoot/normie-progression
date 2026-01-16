@@ -14,6 +14,7 @@ import java.util.*;
  * - Handles in-memory mark state
  * - Handles cooldowns (game-day based)
  * - Persists marks to marks.yml
+ * - Sends notify on gain / expire
  */
 public class MarkStorage {
 
@@ -55,14 +56,23 @@ public class MarkStorage {
     }
 
     public static void addMark(UUID player, MarkData data) {
+
         DATA.computeIfAbsent(player, k -> new EnumMap<>(MarkType.class))
                 .put(data.getType(), data);
+
+        // 🔔 notify gain
+        MarkNotifier.notifyGain(player, data.getType());
     }
 
     public static void removeMark(UUID player, MarkType type) {
-        if (DATA.containsKey(player)) {
-            DATA.get(player).remove(type);
-        }
+
+        if (!DATA.containsKey(player)) return;
+        if (!DATA.get(player).containsKey(type)) return;
+
+        DATA.get(player).remove(type);
+
+        // 🔔 notify loss
+        MarkNotifier.notifyLoss(player, type);
     }
 
     /* =================================================
@@ -84,8 +94,23 @@ public class MarkStorage {
      * ================================================= */
     public static void cleanupExpired(int currentDay) {
 
-        for (Map<MarkType, MarkData> marks : DATA.values()) {
-            marks.values().removeIf(mark -> mark.isExpired(currentDay));
+        for (UUID uuid : DATA.keySet()) {
+
+            Map<MarkType, MarkData> marks = DATA.get(uuid);
+            Iterator<Map.Entry<MarkType, MarkData>> it = marks.entrySet().iterator();
+
+            while (it.hasNext()) {
+
+                Map.Entry<MarkType, MarkData> entry = it.next();
+                MarkData mark = entry.getValue();
+
+                if (mark.isExpired(currentDay)) {
+                    it.remove();
+
+                    // 🔔 notify expire
+                    MarkNotifier.notifyLoss(uuid, mark.getType());
+                }
+            }
         }
     }
 
