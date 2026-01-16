@@ -18,6 +18,7 @@ import java.util.*;
 public class MarkStorage {
 
     private static final Map<UUID, Map<MarkType, MarkData>> DATA = new HashMap<>();
+    private static final Map<UUID, Map<MarkType, Integer>> COOLDOWNS = new HashMap<>();
 
     private static File file;
     private static FileConfiguration config;
@@ -65,12 +66,31 @@ public class MarkStorage {
     }
 
     /* =================================================
+     * COOLDOWN (GAME DAY BASED)
+     * ================================================= */
+    public static boolean isOnCooldown(UUID player, MarkType type, int currentDay) {
+        return COOLDOWNS.containsKey(player)
+                && COOLDOWNS.get(player).getOrDefault(type, -1) > currentDay;
+    }
+
+    public static void setCooldown(UUID player, MarkType type, int untilDay) {
+        COOLDOWNS
+            .computeIfAbsent(player, k -> new EnumMap<>(MarkType.class))
+            .put(type, untilDay);
+    }
+    
+    /* =================================================
      * CLEANUP (GAME DAY BASED)
      * ================================================= */
     public static void cleanupExpired(int currentDay) {
 
         for (Map<MarkType, MarkData> marks : DATA.values()) {
             marks.values().removeIf(mark -> mark.isExpired(currentDay));
+        }
+
+        // cleanup cooldowns
+        for (Map<MarkType, Integer> cds : COOLDOWNS.values()) {
+            cds.entrySet().removeIf(e -> e.getValue() <= currentDay);
         }
     }
 
