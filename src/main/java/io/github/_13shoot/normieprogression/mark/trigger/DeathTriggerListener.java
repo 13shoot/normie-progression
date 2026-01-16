@@ -34,7 +34,7 @@ public class DeathTriggerListener implements Listener {
         int today = v.getDaysAlive();
 
         /* ---------------------------------------------
-         * Remove all temporary marks on death
+         * Remove all TEMPORARY marks on death
          * --------------------------------------------- */
         for (MarkData mark : new ArrayList<>(MarkStorage.getMarks(id))) {
             if (!mark.isPermanent()) {
@@ -56,59 +56,51 @@ public class DeathTriggerListener implements Listener {
         }
 
         /* ---------------------------------------------
-         * BLOOD
+         * BLOOD (temporary)
          * - 2 deaths within 1 in-game day
          * --------------------------------------------- */
         if (days.size() >= 2) {
 
-            int day = today;
+            // cooldown check
+            if (!MarkStorage.isOnCooldown(id, MarkType.BLOOD, today)
+                    && !MarkStorage.hasMark(id, MarkType.BLOOD)) {
 
-            // 1) cooldown check
-            if (MarkStorage.isOnCooldown(id, MarkType.BLOOD, day)) return;
+                // add mark (3 in-game days)
+                MarkStorage.addMark(id, new MarkData(
+                        MarkType.BLOOD,
+                        today,
+                        today + 3
+                ));
 
-            // 2) already has mark
-            if (MarkStorage.hasMark(id, MarkType.BLOOD)) return;
-
-            // 3) add mark (3 days)
-            MarkStorage.addMark(id, new MarkData(
-                    MarkType.BLOOD,
-                    day,
-                    day + 3
-            ));
-
-            // 4) set cooldown (หมด + พัก 3 วัน)
-            MarkStorage.setCooldown(
-                    id,
-                    MarkType.BLOOD,
-                    day + 6
-            );
+                // cooldown = duration + rest (3 + 3)
+                MarkStorage.setCooldown(
+                        id,
+                        MarkType.BLOOD,
+                        today + 6
+                );
+            }
         }
 
         /* ---------------------------------------------
-         * LOSS
+         * LOSS (temporary)
          * - Any death
          * --------------------------------------------- */
-        int day = today;
+        if (!MarkStorage.isOnCooldown(id, MarkType.LOSS, today)
+                && !MarkStorage.hasMark(id, MarkType.LOSS)) {
 
-        // 1) cooldown
-        if (MarkStorage.isOnCooldown(id, MarkType.LOSS, day)) return;
+            // add mark
+            MarkStorage.addMark(id, new MarkData(
+                    MarkType.LOSS,
+                    today,
+                    today + 3
+            ));
 
-        // 2) already active
-        if (MarkStorage.hasMark(id, MarkType.LOSS)) return;
-
-        // 3) add mark
-        MarkStorage.addMark(id, new MarkData(
-                MarkType.LOSS,
-                day,
-                day + 3
-        ));
-
-        // 4) cooldown
-        MarkStorage.setCooldown(
-                id,
-                MarkType.LOSS,
-                day + 6
-        );
+            // cooldown
+            MarkStorage.setCooldown(
+                    id,
+                    MarkType.LOSS,
+                    today + 6
+            );
         }
     }
 }
