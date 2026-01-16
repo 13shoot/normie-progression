@@ -48,7 +48,7 @@ public class MarkTriggerListeners_Advanced implements Listener {
         VisibilityData v = VisibilityManager.get(id);
         if (v == null) return;
 
-        long day = v.getDaysAlive();
+        int day = v.getDaysAlive();
 
         // SURVIVAL: 30+ in-game days
         if (day >= 30 && !MarkStorage.hasMark(id, MarkType.SURVIVAL)) {
@@ -94,7 +94,7 @@ public class MarkTriggerListeners_Advanced implements Listener {
             if (!prog.isDone()) return;
         }
 
-        long day = VisibilityManager.get(id).getDaysAlive();
+        int day = VisibilityManager.get(id).getDaysAlive();
 
         MarkStorage.addMark(id, new MarkData(
                 MarkType.RECOGNITION,
