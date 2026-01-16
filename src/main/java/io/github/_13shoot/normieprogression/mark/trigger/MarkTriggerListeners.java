@@ -54,7 +54,7 @@ public class MarkTriggerListeners implements Listener {
 
         Player p = e.getPlayer();
         UUID id = p.getUniqueId();
-        long day = VisibilityManager.get(id).getDaysAlive();
+        int day = VisibilityManager.get(id).getDaysAlive();
 
         if (!MarkStorage.hasMark(id, MarkType.FAVOR)) {
             MarkStorage.addMark(id, new MarkData(
@@ -78,7 +78,7 @@ public class MarkTriggerListeners implements Listener {
         if (hp <= 2.0 && hp > 0) {
 
             UUID id = p.getUniqueId();
-            long day = VisibilityManager.get(id).getDaysAlive();
+            int day = VisibilityManager.get(id).getDaysAlive();
 
             if (!MarkStorage.hasMark(id, MarkType.FEAR)) {
                 MarkStorage.addMark(id, new MarkData(
@@ -123,7 +123,7 @@ public class MarkTriggerListeners implements Listener {
         if (p.getFoodLevel() > 6) return;
 
         UUID id = p.getUniqueId();
-        long day = VisibilityManager.get(id).getDaysAlive();
+        int day = VisibilityManager.get(id).getDaysAlive();
 
         if (!MarkStorage.hasMark(id, MarkType.HUNGER)) {
             MarkStorage.addMark(id, new MarkData(
@@ -177,7 +177,7 @@ public class MarkTriggerListeners implements Listener {
                     if (Math.abs(balance - last) >= 1000
                             && !MarkStorage.hasMark(id, MarkType.TRADE)) {
 
-                        long day = VisibilityManager.get(id).getDaysAlive();
+                        int day = VisibilityManager.get(id).getDaysAlive();
 
                         MarkStorage.addMark(id, new MarkData(
                                 MarkType.TRADE,
