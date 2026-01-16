@@ -6,33 +6,24 @@ import io.github._13shoot.normieprogression.mark.MarkType;
 import io.github._13shoot.normieprogression.visibility.VisibilityData;
 import io.github._13shoot.normieprogression.visibility.VisibilityManager;
 import net.milkbowl.vault.economy.Economy;
-import org.bukkit.Bukkit;
-import org.bukkit.GameMode;
-import org.bukkit.Material;
+import org.bukkit.*;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageEvent;
-import org.bukkit.event.player.PlayerCommandPreprocessEvent;
-import org.bukkit.event.player.PlayerMoveEvent;
-import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.*;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.*;
 
 public class MarkTriggerListeners implements Listener {
 
-    // -------------------------------
-    // TRACKERS
-    // -------------------------------
     private static final Map<UUID, Integer> COMMAND_COUNT = new HashMap<>();
-    private static final Map<UUID, Long> LAST_BALANCE_CHECK = new HashMap<>();
     private static final Map<UUID, Double> LAST_BALANCE = new HashMap<>();
     private static final Random RANDOM = new Random();
 
     /* ------------------------------------------------
-     * COMMAND USAGE → INFLUENCE (permanent)
-     * 30+ commands in 1 day
+     * INFLUENCE (permanent)
      * ------------------------------------------------ */
     @EventHandler
     public void onCommand(PlayerCommandPreprocessEvent e) {
@@ -46,7 +37,7 @@ public class MarkTriggerListeners implements Listener {
         if (count >= 30 && !MarkStorage.hasMark(id, MarkType.INFLUENCE)) {
             MarkStorage.addMark(id, new MarkData(
                     MarkType.INFLUENCE,
-                    System.currentTimeMillis(),
+                    VisibilityManager.get(id).getDaysAlive(),
                     -1,
                     0
             ));
@@ -54,56 +45,54 @@ public class MarkTriggerListeners implements Listener {
     }
 
     /* ------------------------------------------------
-     * RANDOM FAVOR → FAVOR (temporary)
-     * Random chance while moving
+     * FAVOR (temporary)
      * ------------------------------------------------ */
     @EventHandler
     public void onMove(PlayerMoveEvent e) {
 
+        if (RANDOM.nextInt(5000) != 0) return;
+
         Player p = e.getPlayer();
         UUID id = p.getUniqueId();
-        long now = System.currentTimeMillis();
+        long day = VisibilityManager.get(id).getDaysAlive();
 
-        if (RANDOM.nextInt(5000) == 0 && !MarkStorage.hasMark(id, MarkType.FAVOR)) {
-
+        if (!MarkStorage.hasMark(id, MarkType.FAVOR)) {
             MarkStorage.addMark(id, new MarkData(
                     MarkType.FAVOR,
-                    now,
-                    now + (3L * 24 * 60 * 60 * 1000),
-                    now + (24L * 60 * 60 * 1000)
+                    day,
+                    day + 3,
+                    day + 1
             ));
         }
     }
 
     /* ------------------------------------------------
-     * FEAR → FEAR (temporary)
-     * Near-death damage
+     * FEAR (temporary)
      * ------------------------------------------------ */
     @EventHandler
     public void onDamage(EntityDamageEvent e) {
 
         if (!(e.getEntity() instanceof Player p)) return;
 
-        double finalHealth = p.getHealth() - e.getFinalDamage();
-        if (finalHealth <= 2.0 && finalHealth > 0) {
+        double hp = p.getHealth() - e.getFinalDamage();
+        if (hp <= 2.0 && hp > 0) {
 
             UUID id = p.getUniqueId();
-            long now = System.currentTimeMillis();
+            long day = VisibilityManager.get(id).getDaysAlive();
 
             if (!MarkStorage.hasMark(id, MarkType.FEAR)) {
                 MarkStorage.addMark(id, new MarkData(
                         MarkType.FEAR,
-                        now,
-                        now + (3L * 24 * 60 * 60 * 1000),
-                        now + (24L * 60 * 60 * 1000)
+                        day,
+                        day + 3,
+                        day + 1
                 ));
             }
         }
     }
 
     /* ------------------------------------------------
-     * SURVIVAL / WITNESS
-     * - Days alive without death
+     * WITNESS (permanent)
      * ------------------------------------------------ */
     @EventHandler
     public void onJoin(PlayerJoinEvent e) {
@@ -117,7 +106,7 @@ public class MarkTriggerListeners implements Listener {
         if (v.getDaysAlive() >= 120 && !MarkStorage.hasMark(id, MarkType.WITNESS)) {
             MarkStorage.addMark(id, new MarkData(
                     MarkType.WITNESS,
-                    System.currentTimeMillis(),
+                    v.getDaysAlive(),
                     -1,
                     0
             ));
@@ -125,7 +114,7 @@ public class MarkTriggerListeners implements Listener {
     }
 
     /* ------------------------------------------------
-     * HUNGER → HUNGER (temporary)
+     * HUNGER (temporary)
      * ------------------------------------------------ */
     @EventHandler
     public void onMoveHunger(PlayerMoveEvent e) {
@@ -134,21 +123,20 @@ public class MarkTriggerListeners implements Listener {
         if (p.getFoodLevel() > 6) return;
 
         UUID id = p.getUniqueId();
-        long now = System.currentTimeMillis();
+        long day = VisibilityManager.get(id).getDaysAlive();
 
         if (!MarkStorage.hasMark(id, MarkType.HUNGER)) {
             MarkStorage.addMark(id, new MarkData(
                     MarkType.HUNGER,
-                    now,
-                    now + (3L * 24 * 60 * 60 * 1000),
-                    now + (24L * 60 * 60 * 1000)
+                    day,
+                    day + 3,
+                    day + 1
             ));
         }
     }
 
     /* ------------------------------------------------
-     * COLD → COLD (permanent)
-     * - Cold biome presence (simplified)
+     * COLD (permanent)
      * ------------------------------------------------ */
     @EventHandler
     public void onCold(PlayerMoveEvent e) {
@@ -159,21 +147,20 @@ public class MarkTriggerListeners implements Listener {
         Material block = p.getLocation().getBlock().getType();
         UUID id = p.getUniqueId();
 
-        if (block == Material.SNOW_BLOCK || block == Material.ICE) {
-            if (!MarkStorage.hasMark(id, MarkType.COLD)) {
-                MarkStorage.addMark(id, new MarkData(
-                        MarkType.COLD,
-                        System.currentTimeMillis(),
-                        -1,
-                        0
-                ));
-            }
+        if ((block == Material.SNOW_BLOCK || block == Material.ICE)
+                && !MarkStorage.hasMark(id, MarkType.COLD)) {
+
+            MarkStorage.addMark(id, new MarkData(
+                    MarkType.COLD,
+                    VisibilityManager.get(id).getDaysAlive(),
+                    -1,
+                    0
+            ));
         }
     }
 
     /* ------------------------------------------------
-     * ECONOMY → TRADE (temporary)
-     * - Balance swing detection
+     * TRADE (temporary)
      * ------------------------------------------------ */
     public static void startEconomyWatcher(Economy economy) {
 
@@ -190,20 +177,20 @@ public class MarkTriggerListeners implements Listener {
                     if (Math.abs(balance - last) >= 1000
                             && !MarkStorage.hasMark(id, MarkType.TRADE)) {
 
-                        long now = System.currentTimeMillis();
+                        long day = VisibilityManager.get(id).getDaysAlive();
 
                         MarkStorage.addMark(id, new MarkData(
                                 MarkType.TRADE,
-                                now,
-                                now + (3L * 24 * 60 * 60 * 1000),
-                                now + (24L * 60 * 60 * 1000)
+                                day,
+                                day + 3,
+                                day + 1
                         ));
                     }
 
                     LAST_BALANCE.put(id, balance);
                 }
             }
-        }.runTaskTimerAsynchronously(
+        }.runTaskTimer(
                 Bukkit.getPluginManager().getPlugin("NormieProgression"),
                 20L * 60,
                 20L * 60
