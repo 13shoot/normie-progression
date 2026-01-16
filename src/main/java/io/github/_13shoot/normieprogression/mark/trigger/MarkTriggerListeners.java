@@ -199,7 +199,7 @@ public class MarkTriggerListeners implements Listener {
 
                     int day = VisibilityManager.get(id).getDaysAlive();
 
-                    if (Math.abs(balance - last) >= 1000) {
+                    if (Math.abs(balance - last) >= 50000) {
 
                         if (!MarkStorage.isOnCooldown(id, MarkType.TRADE, day)
                                 && !MarkStorage.hasMark(id, MarkType.TRADE)) {
