@@ -3,6 +3,8 @@ package io.github._13shoot.normieprogression.mark.trigger;
 import io.github._13shoot.normieprogression.mark.MarkData;
 import io.github._13shoot.normieprogression.mark.MarkStorage;
 import io.github._13shoot.normieprogression.mark.MarkType;
+import io.github._13shoot.normieprogression.visibility.VisibilityData;
+import io.github._13shoot.normieprogression.visibility.VisibilityManager;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -12,15 +14,19 @@ import java.util.*;
 
 public class DeathTriggerListener implements Listener {
 
-    // Track recent deaths per player
-    private static final Map<UUID, Deque<Long>> DEATHS = new HashMap<>();
+    // Track recent deaths in game-days
+    private static final Map<UUID, Deque<Long>> DEATH_DAYS = new HashMap<>();
 
     @EventHandler
     public void onDeath(PlayerDeathEvent event) {
 
         Player player = event.getEntity();
         UUID id = player.getUniqueId();
-        long now = System.currentTimeMillis();
+
+        VisibilityData v = VisibilityManager.get(id);
+        if (v == null) return;
+
+        long nowDay = v.getDaysAlive();
 
         /* ---------------------------------------------
          * Remove all temporary marks on death
@@ -32,46 +38,40 @@ public class DeathTriggerListener implements Listener {
         }
 
         /* ---------------------------------------------
-         * Track death timestamps
+         * Track death history (by game days)
          * --------------------------------------------- */
-        Deque<Long> times = DEATHS.computeIfAbsent(id, k -> new ArrayDeque<>());
-        times.addLast(now);
+        Deque<Long> days = DEATH_DAYS.computeIfAbsent(id, k -> new ArrayDeque<>());
+        days.addLast(nowDay);
 
-        while (!times.isEmpty() && now - times.peekFirst() > 10 * 60 * 1000) {
-            times.pollFirst();
+        while (!days.isEmpty() && nowDay - days.peekFirst() > 1) {
+            days.pollFirst();
         }
 
         /* ---------------------------------------------
-         * BLOOD mark
-         * - 2 deaths within 10 minutes
+         * BLOOD
+         * - 2 deaths within 1 in-game day
          * --------------------------------------------- */
-        if (times.size() >= 2 && !MarkStorage.hasMark(id, MarkType.BLOOD)) {
-
-            long expiresAt = now + (3L * 24 * 60 * 60 * 1000);   // 3 days
-            long cooldownUntil = now + (24L * 60 * 60 * 1000); // 1 day
+        if (days.size() >= 2 && !MarkStorage.hasMark(id, MarkType.BLOOD)) {
 
             MarkStorage.addMark(id, new MarkData(
                     MarkType.BLOOD,
-                    now,
-                    expiresAt,
-                    cooldownUntil
+                    nowDay,
+                    nowDay + 3, // expires in 3 in-game days
+                    nowDay + 1  // cooldown 1 day
             ));
         }
 
         /* ---------------------------------------------
-         * LOSS mark
-         * - Any death (single event based)
+         * LOSS
+         * - Any death
          * --------------------------------------------- */
         if (!MarkStorage.hasMark(id, MarkType.LOSS)) {
 
-            long expiresAt = now + (3L * 24 * 60 * 60 * 1000);   // 3 days
-            long cooldownUntil = now + (24L * 60 * 60 * 1000); // 1 day
-
             MarkStorage.addMark(id, new MarkData(
                     MarkType.LOSS,
-                    now,
-                    expiresAt,
-                    cooldownUntil
+                    nowDay,
+                    nowDay + 3,
+                    nowDay + 1
             ));
         }
     }
