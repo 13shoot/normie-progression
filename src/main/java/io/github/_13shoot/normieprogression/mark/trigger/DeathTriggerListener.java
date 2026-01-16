@@ -10,12 +10,17 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.PlayerDeathEvent;
 
-import java.util.*;
+import java.util.ArrayDeque;
+import java.util.ArrayList;
+import java.util.Deque;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
 
 public class DeathTriggerListener implements Listener {
 
-    // Track recent deaths in game-days
-    private static final Map<UUID, Deque<long>> DEATH_DAYS = new HashMap<>();
+    // Track recent deaths in in-game days
+    private static final Map<UUID, Deque<Integer>> DEATH_DAYS = new HashMap<>();
 
     @EventHandler
     public void onDeath(PlayerDeathEvent event) {
@@ -26,7 +31,7 @@ public class DeathTriggerListener implements Listener {
         VisibilityData v = VisibilityManager.get(id);
         if (v == null) return;
 
-        int nowDay = v.getDaysAlive();
+        int today = v.getDaysAlive();
 
         /* ---------------------------------------------
          * Remove all temporary marks on death
@@ -38,12 +43,15 @@ public class DeathTriggerListener implements Listener {
         }
 
         /* ---------------------------------------------
-         * Track death history (by game days)
+         * Track death history (by in-game day)
          * --------------------------------------------- */
-        <int> days = DEATH_DAYS.computeIfAbsent(id, k -> new Array<>());
-        days.addLast(nowDay);
+        Deque<Integer> days =
+                DEATH_DAYS.computeIfAbsent(id, k -> new ArrayDeque<>());
 
-        while (!days.isEmpty() && nowDay - days.peekFirst() > 1) {
+        days.addLast(today);
+
+        // Keep only deaths within the last 1 in-game day
+        while (!days.isEmpty() && today - days.peekFirst() > 1) {
             days.pollFirst();
         }
 
@@ -55,9 +63,9 @@ public class DeathTriggerListener implements Listener {
 
             MarkStorage.addMark(id, new MarkData(
                     MarkType.BLOOD,
-                    nowDay,
-                    nowDay + 3, // expires in 3 in-game days
-                    nowDay + 1  // cooldown 1 day
+                    today,
+                    today + 3, // expires in 3 in-game days
+                    today + 1  // cooldown 1 in-game day
             ));
         }
 
@@ -69,9 +77,9 @@ public class DeathTriggerListener implements Listener {
 
             MarkStorage.addMark(id, new MarkData(
                     MarkType.LOSS,
-                    nowDay,
-                    nowDay + 3,
-                    nowDay + 1
+                    today,
+                    today + 3,
+                    today + 1
             ));
         }
     }
