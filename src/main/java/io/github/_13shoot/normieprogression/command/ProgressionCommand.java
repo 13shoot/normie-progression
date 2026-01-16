@@ -9,7 +9,6 @@ import io.github._13shoot.normieprogression.gui.ProgressionGUI;
 import io.github._13shoot.normieprogression.mark.MarkData;
 import io.github._13shoot.normieprogression.mark.MarkStorage;
 import io.github._13shoot.normieprogression.mark.MarkType;
-import io.github._13shoot.normieprogression.tier.Tier;
 import io.github._13shoot.normieprogression.tier.TierManager;
 import io.github._13shoot.normieprogression.visibility.VisibilityData;
 import io.github._13shoot.normieprogression.visibility.VisibilityManager;
@@ -47,14 +46,10 @@ public class ProgressionCommand implements CommandExecutor, TabCompleter {
 
         switch (args[0].toLowerCase()) {
             case "gate" -> handleGate(sender, args);
-            case "visibility" -> handleVisibility(sender, args);
-            case "tier" -> handleTier(sender, args);
             case "mark" -> handleMark(sender, args);
             case "status" -> handleStatus(sender, args);
             case "chronicle" -> handleChronicle(sender, args);
             case "reload" -> handleReload(sender);
-            case "reset" -> handleReset(sender, args);
-            case "debug" -> handleDebug(sender, args);
             default -> sendHelp(sender);
         }
         return true;
@@ -62,6 +57,7 @@ public class ProgressionCommand implements CommandExecutor, TabCompleter {
 
     /* ================= STATUS ================= */
     private void handleStatus(CommandSender sender, String[] args) {
+
         if (args.length < 2) {
             sender.sendMessage("§cUsage: /np status <player>");
             return;
@@ -102,7 +98,7 @@ public class ProgressionCommand implements CommandExecutor, TabCompleter {
         }
 
         UUID id = target.getUniqueId();
-        long now = System.currentTimeMillis();
+        long nowDay = VisibilityManager.get(id).getDaysAlive();
 
         switch (args[1].toLowerCase()) {
 
@@ -116,20 +112,33 @@ public class ProgressionCommand implements CommandExecutor, TabCompleter {
 
             case "add" -> {
                 MarkType type = MarkType.valueOf(args[3].toUpperCase());
+
                 if (MarkStorage.hasMark(id, type)) {
                     sender.sendMessage("§eAlready has this mark.");
                     return;
                 }
-                long exp = type.isPermanent() ? -1 : now + (3L * 86400000);
-                MarkStorage.addMark(id, new MarkData(type, now, exp, now));
+
+                long expires = type.isPermanent() ? -1 : nowDay + 3;
+                MarkStorage.addMark(id, new MarkData(
+                        type,
+                        nowDay,
+                        expires,
+                        nowDay
+                ));
+
                 sender.sendMessage("§aAdded mark: " + type.name());
             }
 
             case "addall" -> {
                 for (MarkType t : MarkType.values()) {
                     if (!MarkStorage.hasMark(id, t)) {
-                        long exp = t.isPermanent() ? -1 : now + (3L * 86400000);
-                        MarkStorage.addMark(id, new MarkData(t, now, exp, now));
+                        long expires = t.isPermanent() ? -1 : nowDay + 3;
+                        MarkStorage.addMark(id, new MarkData(
+                                t,
+                                nowDay,
+                                expires,
+                                nowDay
+                        ));
                     }
                 }
                 sender.sendMessage("§aAll marks added.");
@@ -146,6 +155,7 @@ public class ProgressionCommand implements CommandExecutor, TabCompleter {
 
     /* ================= CHRONICLE ================= */
     private void handleChronicle(CommandSender sender, String[] args) {
+
         if (args.length < 3 || !args[1].equalsIgnoreCase("list")) {
             sender.sendMessage("§cUsage: /np chronicle list <player>");
             return;
@@ -170,29 +180,9 @@ public class ProgressionCommand implements CommandExecutor, TabCompleter {
         sender.sendMessage("§aNormieProgression reloaded.");
     }
 
-    /* ================= TAB ================= */
-    @Override
-    public List<String> onTabComplete(CommandSender sender, Command cmd, String a, String[] args) {
-
-        if (!sender.isOp()) return List.of();
-
-        if (args.length == 1)
-            return List.of("gui","gate","tier","mark","status","chronicle","reload","reset","debug","visibility");
-
-        if (args.length == 2 && args[0].equalsIgnoreCase("mark"))
-            return List.of("add","addall","reset","list");
-
-        if (args.length == 2 && args[0].equalsIgnoreCase("chronicle"))
-            return List.of("list");
-
-        if (args.length >= 2)
-            return Bukkit.getOnlinePlayers().stream().map(Player::getName).toList();
-
-        return List.of();
-    }
-
-    /* ================= EXISTING ================= */
+    /* ================= GATE ================= */
     private void handleGate(CommandSender s, String[] a) {
+
         if (a.length < 3) {
             s.sendMessage("§cUsage: /np gate <eval|debug> <player>");
             return;
@@ -217,22 +207,6 @@ public class ProgressionCommand implements CommandExecutor, TabCompleter {
                 s.sendMessage("§7" + gate.getId() + ": " + (pass ? "§aPASS" : "§cFAIL"));
             });
         }
-    }
-
-    private void handleVisibility(CommandSender s, String[] a) {
-        s.sendMessage("§cVisibility commands unchanged.");
-    }
-
-    private void handleTier(CommandSender s, String[] a) {
-        s.sendMessage("§cTier commands unchanged.");
-    }
-
-    private void handleReset(CommandSender s, String[] a) {
-        s.sendMessage("§cReset command unchanged.");
-    }
-
-    private void handleDebug(CommandSender s, String[] a) {
-        s.sendMessage("§cDebug command unchanged.");
     }
 
     private void sendHelp(CommandSender s) {
