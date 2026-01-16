@@ -183,28 +183,6 @@ public class ProgressionCommand implements CommandExecutor, TabCompleter {
     }
 
     /* =========================================================
-     * TIER
-     * ========================================================= */
-    private void handleTier(CommandSender s, String[] a) {
-
-        if (a.length < 3) {
-            s.sendMessage("§c/np tier get <player>");
-            return;
-        }
-
-        Player p = Bukkit.getPlayer(a[a.length - 1]);
-        if (p == null) {
-            s.sendMessage("§cPlayer not found.");
-            return;
-        }
-
-        if (a[1].equalsIgnoreCase("get")) {
-            s.sendMessage("§6Tier of " + p.getName() + ": §f"
-                    + TierManager.getTier(p.getUniqueId()));
-        }
-    }
-
-    /* =========================================================
      * MARK
      * ========================================================= */
     private void handleMark(CommandSender s, String[] a) {
@@ -302,15 +280,32 @@ public class ProgressionCommand implements CommandExecutor, TabCompleter {
     }
 
     private void handleTier(CommandSender s, String[] a) {
-        Player p = Bukkit.getPlayer(a[a.length - 1]);
-        if (p == null) return;
 
-        if (a[1].equalsIgnoreCase("set")) {
-            TierManager.setTier(p.getUniqueId(), Tier.valueOf(a[2].toUpperCase()));
+    if (a.length < 3) {
+        s.sendMessage("§c/np tier <get|set|reset> <player>");
+        return;
+    }
+
+    Player p = Bukkit.getPlayer(a[a.length - 1]);
+    if (p == null) {
+        s.sendMessage("§cPlayer not found.");
+        return;
+    }
+
+    switch (a[1].toLowerCase()) {
+
+        case "get" -> {
+            s.sendMessage("§6Tier of " + p.getName() + ": §f"
+                    + TierManager.getTier(p.getUniqueId()));
+        }
+
+        case "set" -> {
+            Tier t = Tier.valueOf(a[2].toUpperCase());
+            TierManager.setTier(p.getUniqueId(), t);
             s.sendMessage("§aTier set.");
         }
 
-        if (a[1].equalsIgnoreCase("reset")) {
+        case "reset" -> {
             TierManager.resetTier(p.getUniqueId());
             s.sendMessage("§cTier reset.");
         }
