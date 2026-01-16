@@ -22,6 +22,10 @@ public class MarkTriggerListeners implements Listener {
     private static final Map<UUID, Double> LAST_BALANCE = new HashMap<>();
     private static final Random RANDOM = new Random();
 
+    // common config for temporary marks
+    private static final int TEMP_DURATION = 3;   // days active
+    private static final int TEMP_COOLDOWN = 3;   // days after expire
+
     /* ------------------------------------------------
      * INFLUENCE (permanent)
      * ------------------------------------------------ */
@@ -35,11 +39,12 @@ public class MarkTriggerListeners implements Listener {
         COMMAND_COUNT.put(id, count);
 
         if (count >= 30 && !MarkStorage.hasMark(id, MarkType.INFLUENCE)) {
+            int day = VisibilityManager.get(id).getDaysAlive();
+
             MarkStorage.addMark(id, new MarkData(
                     MarkType.INFLUENCE,
-                    VisibilityManager.get(id).getDaysAlive(),
-                    -1,
-                    0
+                    day,
+                    -1
             ));
         }
     }
@@ -56,14 +61,20 @@ public class MarkTriggerListeners implements Listener {
         UUID id = p.getUniqueId();
         int day = VisibilityManager.get(id).getDaysAlive();
 
-        if (!MarkStorage.hasMark(id, MarkType.FAVOR)) {
-            MarkStorage.addMark(id, new MarkData(
-                    MarkType.FAVOR,
-                    day,
-                    day + 3,
-                    day + 1
-            ));
-        }
+        if (MarkStorage.isOnCooldown(id, MarkType.FAVOR, day)) return;
+        if (MarkStorage.hasMark(id, MarkType.FAVOR)) return;
+
+        MarkStorage.addMark(id, new MarkData(
+                MarkType.FAVOR,
+                day,
+                day + TEMP_DURATION
+        ));
+
+        MarkStorage.setCooldown(
+                id,
+                MarkType.FAVOR,
+                day + TEMP_DURATION + TEMP_COOLDOWN
+        );
     }
 
     /* ------------------------------------------------
@@ -75,20 +86,25 @@ public class MarkTriggerListeners implements Listener {
         if (!(e.getEntity() instanceof Player p)) return;
 
         double hp = p.getHealth() - e.getFinalDamage();
-        if (hp <= 2.0 && hp > 0) {
+        if (hp > 2.0 || hp <= 0) return;
 
-            UUID id = p.getUniqueId();
-            int day = VisibilityManager.get(id).getDaysAlive();
+        UUID id = p.getUniqueId();
+        int day = VisibilityManager.get(id).getDaysAlive();
 
-            if (!MarkStorage.hasMark(id, MarkType.FEAR)) {
-                MarkStorage.addMark(id, new MarkData(
-                        MarkType.FEAR,
-                        day,
-                        day + 3,
-                        day + 1
-                ));
-            }
-        }
+        if (MarkStorage.isOnCooldown(id, MarkType.FEAR, day)) return;
+        if (MarkStorage.hasMark(id, MarkType.FEAR)) return;
+
+        MarkStorage.addMark(id, new MarkData(
+                MarkType.FEAR,
+                day,
+                day + TEMP_DURATION
+        ));
+
+        MarkStorage.setCooldown(
+                id,
+                MarkType.FEAR,
+                day + TEMP_DURATION + TEMP_COOLDOWN
+        );
     }
 
     /* ------------------------------------------------
@@ -104,11 +120,11 @@ public class MarkTriggerListeners implements Listener {
         if (v == null) return;
 
         if (v.getDaysAlive() >= 120 && !MarkStorage.hasMark(id, MarkType.WITNESS)) {
+
             MarkStorage.addMark(id, new MarkData(
                     MarkType.WITNESS,
                     v.getDaysAlive(),
-                    -1,
-                    0
+                    -1
             ));
         }
     }
@@ -125,14 +141,20 @@ public class MarkTriggerListeners implements Listener {
         UUID id = p.getUniqueId();
         int day = VisibilityManager.get(id).getDaysAlive();
 
-        if (!MarkStorage.hasMark(id, MarkType.HUNGER)) {
-            MarkStorage.addMark(id, new MarkData(
-                    MarkType.HUNGER,
-                    day,
-                    day + 3,
-                    day + 1
-            ));
-        }
+        if (MarkStorage.isOnCooldown(id, MarkType.HUNGER, day)) return;
+        if (MarkStorage.hasMark(id, MarkType.HUNGER)) return;
+
+        MarkStorage.addMark(id, new MarkData(
+                MarkType.HUNGER,
+                day,
+                day + TEMP_DURATION
+        ));
+
+        MarkStorage.setCooldown(
+                id,
+                MarkType.HUNGER,
+                day + TEMP_DURATION + TEMP_COOLDOWN
+        );
     }
 
     /* ------------------------------------------------
@@ -150,11 +172,12 @@ public class MarkTriggerListeners implements Listener {
         if ((block == Material.SNOW_BLOCK || block == Material.ICE)
                 && !MarkStorage.hasMark(id, MarkType.COLD)) {
 
+            int day = VisibilityManager.get(id).getDaysAlive();
+
             MarkStorage.addMark(id, new MarkData(
                     MarkType.COLD,
-                    VisibilityManager.get(id).getDaysAlive(),
-                    -1,
-                    0
+                    day,
+                    -1
             ));
         }
     }
@@ -174,17 +197,25 @@ public class MarkTriggerListeners implements Listener {
                     double balance = economy.getBalance(p);
                     double last = LAST_BALANCE.getOrDefault(id, balance);
 
-                    if (Math.abs(balance - last) >= 1000
-                            && !MarkStorage.hasMark(id, MarkType.TRADE)) {
+                    int day = VisibilityManager.get(id).getDaysAlive();
 
-                        int day = VisibilityManager.get(id).getDaysAlive();
+                    if (Math.abs(balance - last) >= 1000) {
 
-                        MarkStorage.addMark(id, new MarkData(
-                                MarkType.TRADE,
-                                day,
-                                day + 3,
-                                day + 1
-                        ));
+                        if (!MarkStorage.isOnCooldown(id, MarkType.TRADE, day)
+                                && !MarkStorage.hasMark(id, MarkType.TRADE)) {
+
+                            MarkStorage.addMark(id, new MarkData(
+                                    MarkType.TRADE,
+                                    day,
+                                    day + TEMP_DURATION
+                            ));
+
+                            MarkStorage.setCooldown(
+                                    id,
+                                    MarkType.TRADE,
+                                    day + TEMP_DURATION + TEMP_COOLDOWN
+                            );
+                        }
                     }
 
                     LAST_BALANCE.put(id, balance);
