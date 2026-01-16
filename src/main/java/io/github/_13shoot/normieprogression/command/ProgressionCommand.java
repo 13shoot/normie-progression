@@ -186,8 +186,9 @@ public class ProgressionCommand implements CommandExecutor, TabCompleter {
      * MARK
      * ========================================================= */
     private void handleMark(CommandSender s, String[] a) {
+
         if (a.length < 3) {
-            s.sendMessage("§c/np mark <list|add|remove|reset> <player>");
+            s.sendMessage("§c/np mark <list|add|addall|remove|reset> <player>");
             return;
         }
 
@@ -202,33 +203,76 @@ public class ProgressionCommand implements CommandExecutor, TabCompleter {
 
         switch (a[1].toLowerCase()) {
 
+            /* ---------- LIST ---------- */
             case "list" -> {
                 s.sendMessage("§6=== Marks of " + p.getName() + " ===");
                 for (MarkData m : MarkStorage.getMarks(id)) {
-                    s.sendMessage((m.isPermanent() ? "§a" : "§c") + m.getType().name());
+                    s.sendMessage(
+                            (m.isPermanent() ? "§a" : "§c") + m.getType().name()
+                    );
                 }
             }
 
+            /* ---------- ADD ---------- */
             case "add" -> {
                 MarkType t = MarkType.valueOf(a[2].toUpperCase());
+
+                if (MarkStorage.hasMark(id, t)) {
+                    s.sendMessage("§ePlayer already has this mark.");
+                    return;
+                }
+
+                int expires = t.isPermanent() ? -1 : day + 3;
+
                 MarkStorage.addMark(id, new MarkData(
                         t,
                         day,
-                        t.isPermanent() ? -1 : day + 3,
-                        day
+                        expires
                 ));
-                s.sendMessage("§aMark added.");
+
+                // temporary mark → set cooldown
+                if (!t.isPermanent()) {
+                    MarkStorage.setCooldown(id, t, day + 6);
+                }
+
+                s.sendMessage("§aMark added: §f" + t.name());
             }
 
+            /* ---------- ADD ALL ---------- */
+            case "addall" -> {
+
+                for (MarkType t : MarkType.values()) {
+
+                    if (MarkStorage.hasMark(id, t)) continue;
+
+                    int expires = t.isPermanent() ? -1 : day + 3;
+
+                    MarkStorage.addMark(id, new MarkData(
+                            t,
+                            day,
+                            expires
+                    ));
+
+                    if (!t.isPermanent()) {
+                        MarkStorage.setCooldown(id, t, day + 6);
+                    }
+                }
+
+                s.sendMessage("§aAll marks added.");
+            }
+
+            /* ---------- REMOVE ---------- */
             case "remove" -> {
                 MarkType t = MarkType.valueOf(a[2].toUpperCase());
                 MarkStorage.removeMark(id, t);
-                s.sendMessage("§eMark removed.");
+                s.sendMessage("§eMark removed: §f" + t.name());
             }
 
+            /* ---------- RESET ---------- */
             case "reset" -> {
-                for (MarkType t : MarkType.values())
+                for (MarkType t : MarkType.values()) {
                     MarkStorage.removeMark(id, t);
+                }
                 s.sendMessage("§cAll marks reset.");
             }
         }
