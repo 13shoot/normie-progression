@@ -116,6 +116,9 @@ public class MarkStorage {
                         cd.remove(mark.getType());
                         if (cd.isEmpty()) {
                             COOLDOWNS.remove(uuid);
+                        }
+                    }
+                }
             }
         }
     }
