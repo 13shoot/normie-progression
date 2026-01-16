@@ -59,28 +59,56 @@ public class DeathTriggerListener implements Listener {
          * BLOOD
          * - 2 deaths within 1 in-game day
          * --------------------------------------------- */
-        if (days.size() >= 2 && !MarkStorage.hasMark(id, MarkType.BLOOD)) {
+        if (days.size() >= 2) {
 
+            int day = today;
+
+            // 1) cooldown check
+            if (MarkStorage.isOnCooldown(id, MarkType.BLOOD, day)) return;
+
+            // 2) already has mark
+            if (MarkStorage.hasMark(id, MarkType.BLOOD)) return;
+
+            // 3) add mark (3 days)
             MarkStorage.addMark(id, new MarkData(
                     MarkType.BLOOD,
-                    today,
-                    today + 3, // expires in 3 in-game days
-                    today + 1  // cooldown 1 in-game day
+                    day,
+                    day + 3
             ));
+
+            // 4) set cooldown (หมด + พัก 3 วัน)
+            MarkStorage.setCooldown(
+                    id,
+                    MarkType.BLOOD,
+                    day + 6
+            );
         }
 
         /* ---------------------------------------------
          * LOSS
          * - Any death
          * --------------------------------------------- */
-        if (!MarkStorage.hasMark(id, MarkType.LOSS)) {
+        int day = today;
 
-            MarkStorage.addMark(id, new MarkData(
-                    MarkType.LOSS,
-                    today,
-                    today + 3,
-                    today + 1
-            ));
+        // 1) cooldown
+        if (MarkStorage.isOnCooldown(id, MarkType.LOSS, day)) return;
+
+        // 2) already active
+        if (MarkStorage.hasMark(id, MarkType.LOSS)) return;
+
+        // 3) add mark
+        MarkStorage.addMark(id, new MarkData(
+                MarkType.LOSS,
+                day,
+                day + 3
+        ));
+
+        // 4) cooldown
+        MarkStorage.setCooldown(
+                id,
+                MarkType.LOSS,
+                day + 6
+        );
         }
     }
 }
