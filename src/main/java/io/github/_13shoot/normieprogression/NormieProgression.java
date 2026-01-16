@@ -14,6 +14,7 @@ import io.github._13shoot.normieprogression.visibility.VaultEconomyHook;
 import io.github._13shoot.normieprogression.visibility.VisibilityListener;
 import io.github._13shoot.normieprogression.visibility.VisibilityStorage;
 import io.github._13shoot.normieprogression.worldreaction.WorldReactionManager;
+import io.github._13shoot.normieprogression.chronicle.ChronicleFileStorage;
 import net.milkbowl.vault.economy.Economy;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -28,6 +29,7 @@ public class NormieProgression extends JavaPlugin {
 
     private VisibilityStorage visibilityStorage;
     private TierStorage tierStorage;
+    private ChronicleFileStorage chronicleStorage;
 
     @Override
     public void onEnable() {
@@ -74,13 +76,9 @@ public class NormieProgression extends JavaPlugin {
 
         /* ------------------------------------------------
          * Chronicle persistence (chronicle.yml)
-         * (Implementation comes later – hook prepared)
          * ------------------------------------------------ */
-        try {
-            io.github._13shoot.normieprogression.chronicle.ChronicleStorage.init(this);
-        } catch (Throwable ignored) {
-            // Chronicle not fully implemented yet – safe to ignore for now
-        }
+        chronicleStorage = new ChronicleFileStorage(this);
+        chronicleStorage.load();
 
         /* ------------------------------------------------
          * Register Gates
@@ -179,9 +177,8 @@ public class NormieProgression extends JavaPlugin {
 
         MarkStorage.saveAll();
 
-        try {
-            io.github._13shoot.normieprogression.chronicle.ChronicleStorage.saveAll();
-        } catch (Throwable ignored) {
+        if (chronicleStorage != null) {
+            chronicleStorage.save();
         }
     }
 
@@ -197,9 +194,8 @@ public class NormieProgression extends JavaPlugin {
 
         MarkStorage.loadAll();
 
-        try {
-            io.github._13shoot.normieprogression.chronicle.ChronicleStorage.loadAll();
-        } catch (Throwable ignored) {
+        if (chronicleStorage != null) {
+            chronicleStorage.load();
         }
     }
 }
