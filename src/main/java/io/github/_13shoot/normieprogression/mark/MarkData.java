@@ -1,8 +1,10 @@
+package io.github._13shoot.normieprogression.mark;
+
 public class MarkData {
 
     private final MarkType type;
 
-    // วันในเกม (daysAlive)
+    // in-game days
     private int obtainedAt;
     private int expiresAt;     // -1 = permanent
     private int cooldownUntil;
