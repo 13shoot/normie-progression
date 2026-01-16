@@ -39,6 +39,18 @@ public class MarkData {
         return currentDay < cooldownUntil;
     }
 
+    public int getObtainedDay() {
+        return obtainedAt;
+    }
+
+    public int getExpiresDay() {
+        return expiresAt;
+    }
+
+    public int getCooldownUntilDay() {
+        return cooldownUntil;
+    }
+
     public int getExpiresAt() {
         return expiresAt;
     }
