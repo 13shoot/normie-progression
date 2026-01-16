@@ -111,7 +111,6 @@ public class MarkStorage {
 
                 config.set(path + ".obtained", mark.getObtainedDay());
                 config.set(path + ".expires", mark.getExpiresDay());
-                config.set(path + ".cooldown", mark.getCooldownUntilDay());
             }
         }
 
@@ -141,13 +140,11 @@ public class MarkStorage {
 
                 int obtained = config.getInt(base + "." + markKey + ".obtained");
                 int expires = config.getInt(base + "." + markKey + ".expires");
-                int cooldown = config.getInt(base + "." + markKey + ".cooldown");
 
                 marks.put(type, new MarkData(
                         type,
                         obtained,
                         expires,
-                        cooldown
                 ));
             }
 
